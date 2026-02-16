@@ -1,0 +1,113 @@
+#!/bin/bash
+# Generic Git pre-commit hook for this UI repo
+#
+# Lightweight checks before commit:
+# 1. Validate key JSON files if present
+# 2. (Placeholder) room for adding project-specific checks later
+
+set -e
+
+# Get the git repository root
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+echo "======================================================================"
+echo "Running pre-commit checks..."
+echo "======================================================================"
+
+# Track overall success
+ALL_PASSED=true
+
+# Function to run a check
+run_check() {
+    local description="$1"
+    shift
+    local cmd=("$@")
+
+    echo ""
+    echo "🔍 $description..."
+
+    if "${cmd[@]}" > /tmp/pre-commit-check.log 2>&1; then
+        echo "✅ $description passed"
+        return 0
+    else
+        echo "❌ $description failed"
+        echo ""
+        cat /tmp/pre-commit-check.log
+        ALL_PASSED=false
+        return 1
+    fi
+}
+
+# Check 1: Validate frontend/package.json (if present)
+validate_frontend_package_json() {
+    local pkg="frontend/package.json"
+    if [ ! -f "$pkg" ]; then
+        echo "Note: $pkg not found — skipping"
+        return 0
+    fi
+    if ! python3 -m json.tool "$pkg" > /dev/null 2>&1; then
+        echo "Error: $pkg is not valid JSON"
+        return 1
+    fi
+    return 0
+}
+
+# Check 2: Validate backend/requirements.txt exists (if backend present)
+validate_backend_requirements() {
+    if [ -d "backend" ] && [ ! -f "backend/requirements.txt" ]; then
+        echo "Note: backend directory present but requirements.txt missing"
+        # Non-fatal for now; return success
+        return 0
+    fi
+    return 0
+}
+
+# Run checks
+run_check "Frontend package.json validation" validate_frontend_package_json || true
+run_check "Backend requirements presence" validate_backend_requirements || true
+
+# Check 3: TypeScript compile (no emit) in frontend
+validate_ts_compile() {
+    if [ ! -d "frontend" ]; then
+        echo "Note: frontend directory not found — skipping TypeScript compile check"
+        return 0
+    fi
+    if ! command -v npx >/dev/null 2>&1; then
+        echo "Note: npx not found — skipping TypeScript compile check"
+        return 0
+    fi
+    (cd frontend && npx tsc --noEmit) >/dev/null 2>&1 || {
+        echo "Error: TypeScript compile failed in frontend"
+        # show brief output for context
+        (cd frontend && npx tsc --noEmit) 2>&1 | head -n 20
+        return 1
+    }
+    return 0
+}
+
+run_check "TypeScript compile (no emit)" validate_ts_compile || true
+
+# Clean up temp file
+rm -f /tmp/pre-commit-check.log
+
+echo ""
+echo "======================================================================"
+
+if [ "$ALL_PASSED" = true ]; then
+    echo "✅ All pre-commit checks passed (non-applicable checks were skipped)."
+    echo "======================================================================"
+    exit 0
+else
+    echo "❌ Some pre-commit checks failed"
+    echo "======================================================================"
+    echo ""
+    echo "To fix:"
+    echo "  • Frontend: Ensure frontend/package.json is valid JSON"
+    echo "  • Backend: Provide backend/requirements.txt if using Python backend"
+    echo ""
+    echo "To skip these checks (NOT RECOMMENDED):"
+    echo "  git commit --no-verify"
+    echo ""
+    exit 1
+fi

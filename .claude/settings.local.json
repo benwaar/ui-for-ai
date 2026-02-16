@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "Bash(python3.11 -m venv:*)",
+      "Bash(pyenv versions:*)",
+      "Bash(pyenv local:*)",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(ng version:*)",
+      "Bash(nvm use:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(source ~/.nvm/nvm.sh)",
+      "Bash(npx @angular/cli@latest new:*)",
+      "Bash(ng generate service:*)",
+      "Bash(chmod:*)",
+      "Bash(bash -n start.sh)",
+      "Bash(bash -n start-tmux.sh)",
+      "Bash(bash -n start-separate.sh)",
+      "Bash(ls:*)",
+      "Bash(./start.sh)"
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+<div class="chatbot-container">
+  <div class="chatbot-header">
+    <h2>Tuesday: Chatbot Interface</h2>
+    <p class="subtitle">Demonstrating: Confidence Signaling, Uncertainty, Correction Loops</p>
+  </div>
+
+  <div class="messages-container">
+    <div class="intro-message">
+      <h3>Key UX Patterns</h3>
+      <ul>
+        <li><strong>Confidence levels:</strong> Every response shows certainty (High/Medium/Low)</li>
+        <li><strong>Source transparency:</strong> See what data the AI used</li>
+        <li><strong>Correction loops:</strong> Fix misunderstandings mid-conversation</li>
+        <li><strong>Uncertainty display:</strong> AI suggests alternatives when unsure</li>
+      </ul>
+      <p class="try-it">Try asking: "What is authentication?" or "How does routing work?"</p>
+    </div>
+
+    <div *ngFor="let message of messages; let i = index"
+         class="message-wrapper"
+         [class.user-message]="message.type === 'user'"
+         [class.assistant-message]="message.type === 'assistant'">
+
+      <!-- User Message -->
+      <div *ngIf="message.type === 'user'" class="message user">
+        <div class="message-header">
+          <span class="sender">You</span>
+          <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
+        </div>
+        <div class="message-content">{{ message.content }}</div>
+      </div>
+
+      <!-- Assistant Message -->
+      <div *ngIf="message.type === 'assistant' && message.data"
+           class="message assistant"
+           [ngClass]="getConfidenceClass(message.data.confidence)">
+
+        <div class="message-header">
+          <span class="sender">AI Assistant</span>
+          <span class="confidence-badge"
+                [ngClass]="getConfidenceClass(message.data.confidence)"
+                [title]="'Confidence: ' + (message.data.confidence * 100) + '%'">
+            {{ getConfidenceLabel(message.data.confidence) }}
+            ({{ (message.data.confidence * 100).toFixed(0) }}%)
+          </span>
+          <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
+        </div>
+
+        <div class="message-content">{{ message.content }}</div>
+
+        <!-- Sources/Tools Used -->
+        <div class="sources-section" *ngIf="message.data.sources && message.data.sources.length > 0">
+          <div class="sources-header">Sources consulted:</div>
+          <div class="sources-list">
+            <div *ngFor="let source of message.data.sources" class="source-item">
+              <span class="source-icon">📄</span>
+              <span class="source-name">{{ source.name }}</span>
+              <span class="source-type">({{ source.type }})</span>
+              <div class="relevance-bar">
+                <div class="relevance-fill"
+                     [style.width.%]="source.relevance * 100"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alternative Interpretations (shown when uncertain) -->
+        <div class="alternatives-section"
+             *ngIf="message.data.alternative_interpretations && message.data.alternative_interpretations.length > 0">
+          <div class="alternatives-header">⚠️ I'm not certain. Did you mean:</div>
+          <div class="alternatives-list">
+            <div *ngFor="let alt of message.data.alternative_interpretations" class="alternative-item">
+              {{ alt }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Correction UI -->
+        <div class="message-actions">
+          <button *ngIf="message.data.can_correct && showingCorrection !== 'msg-' + i"
+                  class="btn-correct"
+                  (click)="showCorrection(i)">
+            ✏️ Correct this
+          </button>
+
+          <div *ngIf="showingCorrection === 'msg-' + i" class="correction-form">
+            <input type="text"
+                   [(ngModel)]="correctionText"
+                   placeholder="What did you actually mean?"
+                   class="correction-input"
+                   (keyup.enter)="submitCorrection(message, i)">
+            <button class="btn-submit-correction"
+                    (click)="submitCorrection(message, i)">
+              Submit Correction
+            </button>
+            <button class="btn-cancel-correction"
+                    (click)="cancelCorrection()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assistant Message (Error/No Data) -->
+      <div *ngIf="message.type === 'assistant' && !message.data"
+           class="message assistant error-message">
+        <div class="message-header">
+          <span class="sender">System</span>
+          <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
+        </div>
+        <div class="message-content">{{ message.content }}</div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="message assistant loading">
+      <div class="message-header">
+        <span class="sender">AI Assistant</span>
+      </div>
+      <div class="loading-indicator">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-container">
+    <input
+      type="text"
+      [(ngModel)]="userInput"
+      (keyup.enter)="sendMessage()"
+      placeholder="Ask a question..."
+      class="message-input"
+      [disabled]="isLoading">
+    <button
+      (click)="sendMessage()"
+      class="btn-send"
+      [disabled]="!userInput.trim() || isLoading">
+      Send
+    </button>
+  </div>
+
+  <!-- Design Notes -->
+  <div class="design-notes">
+    <h4>Design Rationale</h4>
+    <ul>
+      <li><strong>Visual confidence hierarchy:</strong> Green (high), Yellow (uncertain), Red (low confidence)</li>
+      <li><strong>No false authority:</strong> Always show confidence percentage, not just "yes/no"</li>
+      <li><strong>Explainable sources:</strong> User can see what data informed the answer</li>
+      <li><strong>Correction without restart:</strong> Fix mistakes inline, maintaining context</li>
+      <li><strong>Failure states:</strong> Network errors, low confidence, alternative interpretations</li>
+    </ul>
+  </div>
+</div>
