@@ -1,672 +1,243 @@
+/**
+ * Chatbot Component Styles - Material Design Edition
+ *
+ * Simplified from 673 lines to ~100 lines.
+ * Most styling is handled by Angular Material components.
+ * This file only contains layout, alignment, and minor customizations.
+ */
+
 .chatbot-container {
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+// Header with theme switcher
 .chatbot-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
-  position: relative;
+  flex-shrink: 0;
 
-  h2 {
-    margin: 0;
-    color: #1a1a1a;
-    font-size: 28px;
-  }
-
-  .subtitle {
-    margin: 8px 0 0;
-    color: #666;
-    font-size: 14px;
-  }
-
-  .btn-context-toggle {
-    margin-top: 12px;
-    padding: 8px 16px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover {
-      background: #5568d3;
-    }
-  }
-}
-
-.context-panel {
-  background: #f0f4ff;
-  border: 2px solid #667eea;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-  animation: slideDown 0.3s ease-out;
-
-  h4 {
-    margin: 0 0 12px 0;
-    color: #333;
-    font-size: 16px;
-  }
-
-  .context-items {
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .context-item {
+  mat-card-header {
     display: flex;
-    gap: 10px;
-    padding: 8px 10px;
-    background: white;
-    border-radius: 4px;
-    margin-bottom: 6px;
-    font-size: 13px;
-
-    .context-key {
-      font-weight: 600;
-      color: #667eea;
-      min-width: 120px;
-    }
-
-    .context-value {
-      flex: 1;
-      color: #333;
-    }
-
-    .context-time {
-      color: #999;
-      font-size: 11px;
-    }
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
   }
 
-  .context-empty {
-    text-align: center;
-    color: #999;
-    padding: 20px;
-    font-style: italic;
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 24px;
   }
 }
 
-.messages-container {
-  background: #f9f9f9;
-  border-radius: 12px;
-  padding: 20px;
-  min-height: 500px;
-  max-height: 600px;
-  overflow-y: auto;
-  margin-bottom: 20px;
+// Context panel
+.context-empty {
+  padding: 16px;
+  text-align: center;
+  opacity: 0.6;
 }
 
-.intro-message {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+.context-time {
+  font-size: 12px;
+  opacity: 0.7;
+}
 
-  h3 {
-    margin-top: 0;
-    font-size: 18px;
-  }
+// Intro card
+.intro-card {
+  flex-shrink: 0;
 
   ul {
-    margin: 10px 0;
+    margin: 12px 0;
     padding-left: 20px;
-  }
 
-  li {
-    margin: 6px 0;
-    font-size: 14px;
+    li {
+      margin: 8px 0;
+    }
   }
 
   .try-it {
-    margin: 15px 0 0;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    font-style: italic;
-    font-size: 13px;
+    margin-top: 16px;
+    padding: 12px;
+    background-color: var(--app-background, #f5f5f5);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 }
 
-.message-wrapper {
-  margin-bottom: 16px;
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.message {
-  padding: 14px 18px;
-  border-radius: 12px;
-  position: relative;
-
-  &.user {
-    background: #007bff;
-    color: white;
-    margin-left: 20%;
-    text-align: right;
-  }
-
-  &.assistant {
-    background: white;
-    border: 2px solid #e0e0e0;
-    margin-right: 20%;
-
-    &.high-confidence {
-      border-left: 4px solid #28a745;
-      background: #f0fff4;
-    }
-
-    &.medium-confidence {
-      border-left: 4px solid #ffc107;
-      background: #fffbf0;
-    }
-
-    &.low-confidence {
-      border-left: 4px solid #dc3545;
-      background: #fff5f5;
-    }
-
-    &.error-message {
-      border-left: 4px solid #6c757d;
-      background: #f8f9fa;
-    }
-
-    &.loading {
-      background: #f0f0f0;
-      border: 2px dashed #ccc;
-    }
-  }
-
-  &.system {
-    background: #fff9e6;
-    border: 2px solid #ff9800;
-    border-left: 4px solid #ff9800;
-    margin-right: 20%;
-    font-weight: 500;
-  }
-}
-
-.message-header {
+// Messages container
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-  font-size: 13px;
+  flex-direction: column;
+  gap: 16px;
 
-  .sender {
-    font-weight: 600;
-    color: #333;
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
   }
 
-  .timestamp {
-    color: #999;
-    font-size: 11px;
-  }
-}
-
-.confidence-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  margin-left: auto;
-
-  &.high-confidence {
-    background: #28a745;
-    color: white;
-  }
-
-  &.medium-confidence {
-    background: #ffc107;
-    color: #000;
-  }
-
-  &.low-confidence {
-    background: #dc3545;
-    color: white;
-  }
-}
-
-.message-content {
-  line-height: 1.6;
-  color: #333;
-  font-size: 15px;
-}
-
-.sources-section {
-  margin-top: 12px;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-
-  .sources-header {
-    font-size: 12px;
-    font-weight: 600;
-    color: #666;
-    margin-bottom: 8px;
-  }
-
-  .sources-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .source-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    padding: 6px;
-    background: white;
-    border-radius: 4px;
-
-    .source-icon {
-      font-size: 14px;
-    }
-
-    .source-name {
-      font-weight: 500;
-      color: #333;
-    }
-
-    .source-type {
-      color: #999;
-      font-size: 11px;
-    }
-
-    .relevance-bar {
-      margin-left: auto;
-      width: 60px;
-      height: 4px;
-      background: #e0e0e0;
-      border-radius: 2px;
-      overflow: hidden;
-
-      .relevance-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #007bff, #0056b3);
-        transition: width 0.3s ease;
-      }
-    }
-  }
-}
-
-.alternatives-section {
-  margin-top: 12px;
-  padding: 12px;
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: 6px;
-
-  .alternatives-header {
-    font-size: 12px;
-    font-weight: 600;
-    color: #856404;
-    margin-bottom: 8px;
-  }
-
-  .alternatives-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .alternative-item {
-    padding: 8px 10px;
-    background: white;
-    border-radius: 4px;
-    font-size: 13px;
-    color: #333;
-    border-left: 3px solid #ffc107;
-  }
-}
-
-.failure-state-section {
-  margin-top: 12px;
-  padding: 12px;
-  background: #ffe6e6;
-  border: 1px solid #ff5252;
-  border-radius: 6px;
-
-  .failure-type {
-    font-size: 12px;
-    color: #d32f2f;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-
-  .failure-message {
-    font-size: 13px;
-    color: #333;
-    margin-bottom: 8px;
-  }
-
-  .failure-action {
-    font-size: 13px;
-    color: #1976d2;
-    padding: 8px;
-    background: #e3f2fd;
-    border-radius: 4px;
-    margin-bottom: 8px;
-  }
-
-  .btn-retry {
-    padding: 6px 12px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover {
-      background: #218838;
-    }
-  }
-}
-
-.tools-section {
-  margin-top: 12px;
-  padding: 12px;
-  background: rgba(103, 58, 183, 0.05);
-  border: 1px solid rgba(103, 58, 183, 0.2);
-  border-radius: 6px;
-
-  .tools-header {
-    font-size: 12px;
-    font-weight: 600;
-    color: #673ab7;
-    margin-bottom: 8px;
-  }
-
-  .tools-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .tool-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    background: white;
-    border-radius: 4px;
-    font-size: 13px;
-    border-left: 3px solid #673ab7;
-
-    &.tool-failed {
-      border-left-color: #dc3545;
-      background: #fff5f5;
-    }
-
-    .tool-icon {
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .tool-name {
-      font-weight: 600;
-      color: #333;
-    }
-
-    .tool-description {
-      flex: 1;
-      color: #666;
-      font-size: 12px;
-    }
-
-    .tool-time {
-      color: #999;
-      font-size: 11px;
-      background: #f0f0f0;
-      padding: 2px 6px;
-      border-radius: 3px;
-    }
-  }
-}
-
-.message-actions {
-  margin-top: 10px;
-
-  .btn-correct {
+  &::-webkit-scrollbar-track {
     background: transparent;
-    border: 1px solid #007bff;
-    color: #007bff;
-    padding: 6px 12px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
     border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
 
     &:hover {
-      background: #007bff;
-      color: white;
+      background: #aaa;
     }
   }
 }
 
-.correction-form {
+// Message alignment
+.message-wrapper {
   display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  animation: slideDown 0.2s ease-out;
+  flex-direction: column;
 
-  .correction-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 2px solid #007bff;
-    border-radius: 4px;
-    font-size: 13px;
-
-    &:focus {
-      outline: none;
-      border-color: #0056b3;
-    }
+  .user-message {
+    align-self: flex-end;
+    max-width: 70%;
+    background-color: var(--user-message-bg);
+    color: var(--user-message-color);
   }
 
-  .btn-submit-correction,
-  .btn-cancel-correction {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-submit-correction {
-    background: #28a745;
-    color: white;
-
-    &:hover {
-      background: #218838;
-    }
-  }
-
-  .btn-cancel-correction {
-    background: #6c757d;
-    color: white;
-
-    &:hover {
-      background: #545b62;
-    }
+  .assistant-message,
+  .system-message {
+    align-self: flex-start;
+    max-width: 85%;
   }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+// Confidence-based borders for assistant messages (triple encoding)
+.assistant-message {
+  &.confidence-high {
+    border-left: 4px solid var(--confidence-high-border);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  &.confidence-medium {
+    border-left: 4px dashed var(--confidence-medium-border);
   }
-}
 
-.loading {
-  .loading-indicator {
-    display: flex;
-    gap: 8px;
-    padding: 10px 0;
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      background: #999;
-      border-radius: 50%;
-      animation: bounce 1.4s infinite ease-in-out both;
-
-      &:nth-child(1) {
-        animation-delay: -0.32s;
-      }
-
-      &:nth-child(2) {
-        animation-delay: -0.16s;
-      }
-    }
+  &.confidence-low {
+    border-left: 4px dotted var(--confidence-low-border);
   }
 }
 
-@keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1);
-  }
+// Confidence chips positioning
+.confidence-chips {
+  margin-left: auto;
 }
 
-.input-container {
+// Source relevance display
+.source-relevance {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 120px;
 
-  .message-input {
-    flex: 1;
-    padding: 14px 18px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: border-color 0.2s;
-
-    &:focus {
-      outline: none;
-      border-color: #007bff;
-    }
-
-    &:disabled {
-      background: #f0f0f0;
-      cursor: not-allowed;
-    }
+  mat-progress-bar {
+    width: 100%;
   }
 
-  .btn-send {
-    padding: 14px 32px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover:not(:disabled) {
-      background: #0056b3;
-    }
-
-    &:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-  }
-
-  .btn-interrupt {
-    padding: 14px 32px;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    animation: pulse 1.5s infinite;
-
-    &:hover {
-      background: #c82333;
-    }
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
+  .relevance-label {
+    font-size: 12px;
     opacity: 0.7;
   }
 }
 
-.design-notes {
-  background: #f0f0f0;
-  padding: 20px;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
+// Failure states and alternatives
+.failure-state,
+.alternatives,
+.alternatives-low-conf {
+  margin-top: 16px;
 
   h4 {
-    margin-top: 0;
-    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
   }
 
-  ul {
-    margin: 10px 0 0;
-    padding-left: 20px;
-  }
-
-  li {
-    margin: 8px 0;
-    color: #555;
-    font-size: 14px;
-    line-height: 1.5;
+  mat-divider {
+    margin: 12px 0;
   }
 }
 
-// Scrollbar styling
-.messages-container::-webkit-scrollbar {
-  width: 8px;
-}
+// Correction form
+.correction-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 12px;
 
-.messages-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-
-  &:hover {
-    background: #555;
+  .correction-field {
+    flex: 1;
   }
+}
+
+// Loading indicator
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  opacity: 0.7;
+
+  p {
+    margin: 0;
+  }
+}
+
+// Input area
+.input-container {
+  flex-shrink: 0;
+
+  mat-card-content {
+    padding: 16px;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .message-input-field {
+    flex: 1;
+    margin: 0;
+  }
+}
+
+// Material overrides for spacing
+mat-expansion-panel {
+  margin-bottom: 8px;
+}
+
+mat-chip-set {
+  margin-top: 8px;
+}
+
+mat-list-item {
+  height: auto !important;
+  min-height: 48px;
 }

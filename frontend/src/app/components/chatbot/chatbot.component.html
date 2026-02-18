@@ -1,238 +1,301 @@
 <div class="chatbot-container">
-  <div class="chatbot-header">
-    <h2>Tuesday: Chatbot Interface</h2>
-    <p class="subtitle">Demonstrating: Confidence Signaling, Uncertainty, Correction Loops, Interruption, Context Visibility</p>
-    <button class="btn-context-toggle" (click)="toggleContextPanel()">
-      {{ showContextPanel ? '🔽 Hide Context' : '🔼 Show Context' }}
-    </button>
-  </div>
+  <!-- Header with Theme Switcher -->
+  <mat-card class="chatbot-header">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>chat</mat-icon>
+        Tuesday: Chatbot Interface
+      </mat-card-title>
+      <mat-card-subtitle>
+        Demonstrating: Confidence Signaling, Uncertainty, Correction Loops, Interruption, Context Visibility
+      </mat-card-subtitle>
+      <div class="header-actions">
+        <button mat-icon-button
+                (click)="toggleTheme()"
+                [matTooltip]="(theme$ | async) === 'dark' ? 'Switch to Colorful Theme' : 'Switch to Dark Theme'"
+                aria-label="Toggle theme">
+          <mat-icon>{{ (theme$ | async) === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+        <mat-slide-toggle [(ngModel)]="showContextPanel" color="primary">
+          Show Context
+        </mat-slide-toggle>
+      </div>
+    </mat-card-header>
+  </mat-card>
 
   <!-- Context Visibility Panel -->
-  <div class="context-panel" *ngIf="showContextPanel">
-    <h4>Conversation Context</h4>
-    <div class="context-items">
-      <div *ngFor="let item of conversationContext" class="context-item">
-        <span class="context-key">{{ item.key }}:</span>
-        <span class="context-value">{{ item.value }}</span>
-        <span class="context-time">{{ item.timestamp | date:'shortTime' }}</span>
-      </div>
-      <div *ngIf="conversationContext.length === 0" class="context-empty">
-        No context available
-      </div>
-    </div>
-  </div>
+  <mat-expansion-panel [(expanded)]="showContextPanel" *ngIf="showContextPanel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>memory</mat-icon>
+        Conversation Context
+      </mat-panel-title>
+      <mat-panel-description>
+        Last 10 context items
+      </mat-panel-description>
+    </mat-expansion-panel-header>
 
-  <div class="messages-container">
-    <div class="intro-message">
-      <h3>Key UX Patterns</h3>
+    <mat-list *ngIf="conversationContext.length > 0; else noContext">
+      <mat-list-item *ngFor="let item of conversationContext">
+        <mat-icon matListItemIcon>label</mat-icon>
+        <div matListItemTitle>{{ item.key }}</div>
+        <div matListItemLine>{{ item.value }}</div>
+        <span matListItemMeta class="context-time">{{ item.timestamp | date:'shortTime' }}</span>
+      </mat-list-item>
+    </mat-list>
+
+    <ng-template #noContext>
+      <p class="context-empty">No context available</p>
+    </ng-template>
+  </mat-expansion-panel>
+
+  <!-- Intro Card -->
+  <mat-card class="intro-card">
+    <mat-card-header>
+      <mat-card-title>Key UX Patterns</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
       <ul>
-        <li><strong>Confidence levels:</strong> Every response shows certainty (High/Medium/Low)</li>
+        <li><strong>Confidence levels:</strong> Every response shows certainty with color + icon + border</li>
         <li><strong>Source transparency:</strong> See what data the AI used</li>
         <li><strong>Correction loops:</strong> Fix misunderstandings mid-conversation</li>
         <li><strong>Uncertainty display:</strong> AI suggests alternatives when unsure</li>
       </ul>
-      <p class="try-it">Try asking: "What is authentication?" or "How does routing work?"</p>
-    </div>
+      <p class="try-it">
+        <mat-icon inline>info</mat-icon>
+        Try asking: "What are confidence levels?" or "How does routing work?"
+      </p>
+    </mat-card-content>
+  </mat-card>
 
+  <!-- Messages Container -->
+  <div class="messages-container" role="log" aria-live="polite" aria-label="Chat messages">
     <div *ngFor="let message of messages; let i = index"
-         class="message-wrapper"
-         [class.user-message]="message.type === 'user'"
-         [class.assistant-message]="message.type === 'assistant'">
+         class="message-wrapper">
 
       <!-- User Message -->
-      <div *ngIf="message.type === 'user'" class="message user">
-        <div class="message-header">
-          <span class="sender">You</span>
-          <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
-        </div>
-        <div class="message-content">{{ message.content }}</div>
-      </div>
+      <mat-card *ngIf="message.type === 'user'" class="message user-message">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>person</mat-icon>
+          <mat-card-title>You</mat-card-title>
+          <mat-card-subtitle>{{ message.timestamp | date:'short' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          {{ message.content }}
+        </mat-card-content>
+      </mat-card>
 
       <!-- System Message -->
-      <div *ngIf="message.type === 'system'"
-           class="message system">
-        <div class="message-header">
-          <span class="sender">🔧 System</span>
-          <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
-        </div>
-        <div class="message-content">{{ message.content }}</div>
+      <mat-card *ngIf="message.type === 'system'" class="message system-message">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="warn">settings</mat-icon>
+          <mat-card-title>System</mat-card-title>
+          <mat-card-subtitle>{{ message.timestamp | date:'short' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ message.content }}</p>
 
-        <!-- Failure State Details -->
-        <div class="failure-state-section" *ngIf="message.data?.failure_state">
-          <div class="failure-type">
-            <strong>Type:</strong> {{ message.data?.failure_state?.type }}
+          <!-- Failure State Details -->
+          <div *ngIf="message.data?.failure_state" class="failure-state">
+            <mat-divider></mat-divider>
+            <h4>
+              <mat-icon color="warn">error_outline</mat-icon>
+              Error Details
+            </h4>
+            <p><strong>Type:</strong> {{ message.data?.failure_state?.type }}</p>
+            <p><strong>Details:</strong> {{ message.data?.failure_state?.message }}</p>
+            <p *ngIf="message.data?.failure_state?.user_action">
+              <mat-icon inline>lightbulb</mat-icon>
+              <strong>Suggested Action:</strong> {{ message.data?.failure_state?.user_action }}
+            </p>
           </div>
-          <div class="failure-message">
-            <strong>Details:</strong> {{ message.data?.failure_state?.message }}
+
+          <!-- Alternative Interpretations -->
+          <div *ngIf="message.data?.alternative_interpretations && (message.data?.alternative_interpretations?.length ?? 0) > 0"
+               class="alternatives">
+            <mat-divider></mat-divider>
+            <h4>
+              <mat-icon color="warn">help_outline</mat-icon>
+              Did you mean:
+            </h4>
+            <mat-chip-set>
+              <mat-chip *ngFor="let alt of message.data?.alternative_interpretations">
+                {{ alt }}
+              </mat-chip>
+            </mat-chip-set>
           </div>
-          <div class="failure-action" *ngIf="message.data?.failure_state?.user_action">
-            <strong>💡 Suggested Action:</strong> {{ message.data?.failure_state?.user_action }}
-          </div>
-          <button *ngIf="message.data?.failure_state?.retry_suggested"
-                  class="btn-retry"
+        </mat-card-content>
+
+        <mat-card-actions *ngIf="message.data?.failure_state?.retry_suggested">
+          <button mat-raised-button
+                  color="accent"
                   (click)="userInput = conversationContext[conversationContext.length - 2]?.value || ''; sendMessage()">
-            🔄 Retry
+            <mat-icon>refresh</mat-icon>
+            Retry
           </button>
-        </div>
-
-        <!-- Alternative Interpretations for System Messages -->
-        <div class="alternatives-section"
-             *ngIf="message.data?.alternative_interpretations && (message.data?.alternative_interpretations?.length ?? 0) > 0">
-          <div class="alternatives-header">⚠️ Did you mean:</div>
-          <div class="alternatives-list">
-            <div *ngFor="let alt of message.data?.alternative_interpretations" class="alternative-item">
-              {{ alt }}
-            </div>
-          </div>
-        </div>
-      </div>
+        </mat-card-actions>
+      </mat-card>
 
       <!-- Assistant Message -->
-      <div *ngIf="message.type === 'assistant' && message.data"
-           class="message assistant"
-           [ngClass]="getConfidenceClass(message.data.confidence)">
+      <mat-card *ngIf="message.type === 'assistant' && message.data"
+                class="message assistant-message"
+                [ngClass]="'confidence-' + getConfidenceClass(message.data.confidence)">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="primary">smart_toy</mat-icon>
+          <mat-card-title>AI Assistant</mat-card-title>
+          <mat-card-subtitle>{{ message.timestamp | date:'short' }}</mat-card-subtitle>
 
-        <div class="message-header">
-          <span class="sender">🤖 AI Assistant</span>
-          <span class="confidence-badge"
-                [ngClass]="getConfidenceClass(message.data.confidence)"
-                [title]="'Confidence: ' + (message.data.confidence * 100) + '%'">
-            {{ getConfidenceLabel(message.data.confidence) }}
-            ({{ (message.data.confidence * 100).toFixed(0) }}%)
-          </span>
-          <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
-        </div>
+          <!-- Confidence Badge -->
+          <mat-chip-set class="confidence-chips">
+            <mat-chip [highlighted]="true"
+                      class="confidence-badge {{ getConfidenceClass(message.data.confidence) }}">
+              <mat-icon matChipAvatar>{{ getConfidenceIcon(message.data.confidence) }}</mat-icon>
+              {{ getConfidenceLabel(message.data.confidence) }}
+              ({{ (message.data.confidence * 100).toFixed(0) }}%)
+            </mat-chip>
+          </mat-chip-set>
+        </mat-card-header>
 
-        <div class="message-content">{{ message.content }}</div>
+        <mat-card-content>
+          <p>{{ message.content }}</p>
 
-        <!-- Tools Used -->
-        <div class="tools-section" *ngIf="message.data.tools_used && message.data.tools_used.length > 0">
-          <div class="tools-header">🔧 Tools Used:</div>
-          <div class="tools-list">
-            <div *ngFor="let tool of message.data.tools_used" class="tool-item" [class.tool-failed]="!tool.success">
-              <span class="tool-icon">{{ tool.success ? '✓' : '✗' }}</span>
-              <span class="tool-name">{{ tool.name }}</span>
-              <span class="tool-description">{{ tool.description }}</span>
-              <span class="tool-time" *ngIf="tool.execution_time_ms">{{ tool.execution_time_ms }}ms</span>
-            </div>
+          <!-- Sources Section -->
+          <mat-expansion-panel *ngIf="message.data.sources && message.data.sources.length > 0">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>source</mat-icon>
+                Sources Consulted ({{ message.data.sources.length }})
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-list>
+              <mat-list-item *ngFor="let source of message.data.sources">
+                <mat-icon matListItemIcon>description</mat-icon>
+                <div matListItemTitle>{{ source.name }}</div>
+                <div matListItemLine>{{ source.type }}</div>
+                <div matListItemMeta class="source-relevance">
+                  <mat-progress-bar mode="determinate"
+                                    [value]="source.relevance * 100"
+                                    [color]="'primary'">
+                  </mat-progress-bar>
+                  <span class="relevance-label">{{ (source.relevance * 100).toFixed(0) }}%</span>
+                </div>
+              </mat-list-item>
+            </mat-list>
+          </mat-expansion-panel>
+
+          <!-- Tools Used Section -->
+          <mat-expansion-panel *ngIf="message.data.tools_used && message.data.tools_used.length > 0">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>build</mat-icon>
+                Tools Used ({{ message.data.tools_used.length }})
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-chip-set>
+              <mat-chip *ngFor="let tool of message.data.tools_used">
+                <mat-icon matChipAvatar [color]="tool.success ? 'primary' : 'warn'">
+                  {{ tool.success ? 'check_circle' : 'error' }}
+                </mat-icon>
+                {{ tool.name }}
+                <span matChipTrailingIcon>{{ tool.execution_time_ms }}ms</span>
+              </mat-chip>
+            </mat-chip-set>
+          </mat-expansion-panel>
+
+          <!-- Alternative Interpretations for Low Confidence -->
+          <div *ngIf="message.data.alternative_interpretations && (message.data.alternative_interpretations.length ?? 0) > 0"
+               class="alternatives-low-conf">
+            <mat-divider></mat-divider>
+            <h4>
+              <mat-icon color="warn">warning</mat-icon>
+              I'm not certain. Did you mean:
+            </h4>
+            <mat-chip-set>
+              <mat-chip *ngFor="let alt of message.data.alternative_interpretations" color="warn">
+                {{ alt }}
+              </mat-chip>
+            </mat-chip-set>
           </div>
-        </div>
-
-        <!-- Sources/Tools Used -->
-        <div class="sources-section" *ngIf="message.data.sources && message.data.sources.length > 0">
-          <div class="sources-header">Sources consulted:</div>
-          <div class="sources-list">
-            <div *ngFor="let source of message.data.sources" class="source-item">
-              <span class="source-icon">📄</span>
-              <span class="source-name">{{ source.name }}</span>
-              <span class="source-type">({{ source.type }})</span>
-              <div class="relevance-bar">
-                <div class="relevance-fill"
-                     [style.width.%]="source.relevance * 100"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Alternative Interpretations (shown when uncertain) -->
-        <div class="alternatives-section"
-             *ngIf="message.data.alternative_interpretations && message.data.alternative_interpretations.length > 0">
-          <div class="alternatives-header">⚠️ I'm not certain. Did you mean:</div>
-          <div class="alternatives-list">
-            <div *ngFor="let alt of message.data.alternative_interpretations" class="alternative-item">
-              {{ alt }}
-            </div>
-          </div>
-        </div>
+        </mat-card-content>
 
         <!-- Correction UI -->
-        <div class="message-actions">
-          <button *ngIf="message.data.can_correct && showingCorrection !== 'msg-' + i"
-                  class="btn-correct"
-                  (click)="showCorrection(i)">
-            ✏️ Correct this
+        <mat-card-actions>
+          <button mat-button
+                  *ngIf="message.data.can_correct && showingCorrection !== 'msg-' + i"
+                  (click)="showCorrection(i)"
+                  aria-label="Correct this response">
+            <mat-icon>edit</mat-icon>
+            Correct this
           </button>
 
+          <!-- Inline Correction Form -->
           <div *ngIf="showingCorrection === 'msg-' + i" class="correction-form">
-            <input type="text"
-                   [(ngModel)]="correctionText"
-                   placeholder="What did you actually mean?"
-                   class="correction-input"
-                   (keyup.enter)="submitCorrection(message, i)">
-            <button class="btn-submit-correction"
-                    (click)="submitCorrection(message, i)">
-              Submit Correction
+            <mat-form-field appearance="outline" class="correction-field">
+              <mat-label>Correction</mat-label>
+              <input matInput
+                     [(ngModel)]="correctionText"
+                     placeholder="I meant..."
+                     (keyup.enter)="submitCorrection(message, i)">
+              <mat-icon matPrefix>edit_note</mat-icon>
+            </mat-form-field>
+            <button mat-raised-button
+                    color="primary"
+                    (click)="submitCorrection(message, i)"
+                    [disabled]="!correctionText.trim()">
+              <mat-icon>send</mat-icon>
+              Submit
             </button>
-            <button class="btn-cancel-correction"
-                    (click)="cancelCorrection()">
+            <button mat-button (click)="cancelCorrection()">
               Cancel
             </button>
           </div>
-        </div>
-      </div>
-
-      <!-- Assistant Message (Error/No Data) -->
-      <div *ngIf="message.type === 'assistant' && !message.data"
-           class="message assistant error-message">
-        <div class="message-header">
-          <span class="sender">System</span>
-          <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
-        </div>
-        <div class="message-content">{{ message.content }}</div>
-      </div>
+        </mat-card-actions>
+      </mat-card>
     </div>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="message assistant loading">
-      <div class="message-header">
-        <span class="sender">AI Assistant</span>
-      </div>
-      <div class="loading-indicator">
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-      </div>
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-container" role="status" aria-live="polite">
+      <mat-spinner diameter="40" color="primary"></mat-spinner>
+      <p>Thinking...</p>
     </div>
   </div>
 
   <!-- Input Area -->
-  <div class="input-container">
-    <input
-      type="text"
-      [(ngModel)]="userInput"
-      (keyup.enter)="sendMessage()"
-      placeholder="Ask a question..."
-      class="message-input"
-      [disabled]="isLoading">
-    <button
-      *ngIf="!isLoading"
-      (click)="sendMessage()"
-      class="btn-send"
-      [disabled]="!userInput.trim()">
-      Send
-    </button>
-    <button
-      *ngIf="isLoading && canInterrupt"
-      (click)="interruptResponse()"
-      class="btn-interrupt">
-      ⏹️ Interrupt
-    </button>
-  </div>
+  <mat-card class="input-container">
+    <mat-card-content>
+      <div class="input-row">
+        <mat-form-field appearance="outline" class="message-input-field">
+          <mat-label>Type your message...</mat-label>
+          <input matInput
+                 [(ngModel)]="userInput"
+                 [disabled]="isLoading"
+                 (keyup.enter)="sendMessage()"
+                 placeholder="Ask me anything..."
+                 aria-label="Message input">
+          <mat-icon matPrefix>chat_bubble_outline</mat-icon>
+        </mat-form-field>
 
-  <!-- Design Notes -->
-  <div class="design-notes">
-    <h4>Design Rationale</h4>
-    <ul>
-      <li><strong>Visual confidence hierarchy:</strong> Green (high), Yellow (uncertain), Red (low confidence)</li>
-      <li><strong>No false authority:</strong> Always show confidence percentage, not just "yes/no"</li>
-      <li><strong>Voice separation:</strong> Clear distinction between AI Assistant (🤖), System messages (🔧), and User</li>
-      <li><strong>Explainable sources:</strong> User can see what data informed the answer</li>
-      <li><strong>Tool transparency:</strong> See which tools were used and their execution status</li>
-      <li><strong>Correction without restart:</strong> Fix mistakes inline, maintaining context</li>
-      <li><strong>Context visibility:</strong> Toggle to see conversation memory and understanding</li>
-      <li><strong>Interruption control:</strong> Stop long responses mid-stream when needed</li>
-      <li><strong>5 Failure states:</strong> Timeout, Rate limiting, Ambiguous queries, Context loss, Network errors</li>
-      <li><strong>Graceful degradation:</strong> Every failure provides user guidance and retry options</li>
-    </ul>
-  </div>
+        <button mat-raised-button
+                color="primary"
+                (click)="sendMessage()"
+                [disabled]="!userInput.trim() || isLoading"
+                matTooltip="Send message (Enter)"
+                aria-label="Send message">
+          <mat-icon>send</mat-icon>
+          Send
+        </button>
+
+        <button mat-icon-button
+                color="warn"
+                *ngIf="canInterrupt"
+                (click)="interruptResponse()"
+                matTooltip="Stop response"
+                aria-label="Interrupt response">
+          <mat-icon>stop</mat-icon>
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

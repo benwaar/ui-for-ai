@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatbotService } from '../../services/chatbot.service';
 import { ChatbotMessage } from '../../models/chatbot.model';
+import { ThemeService } from '../../services/theme.service';
+import { MaterialModule } from '../../material.module';
 import { Subscription } from 'rxjs';
 
 interface MessageDisplay {
@@ -22,7 +24,7 @@ interface ContextItem {
 @Component({
   selector: 'app-chatbot',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaterialModule],
   templateUrl: './chatbot.component.html',
   styleUrls: ['./chatbot.component.scss']
 })
@@ -38,11 +40,14 @@ export class ChatbotComponent {
   currentSubscription?: Subscription;
   canInterrupt = false;
   messageCount = 0;
+  theme$;
 
   constructor(
     private chatbotService: ChatbotService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public themeService: ThemeService
   ) {
+    this.theme$ = this.themeService.theme$;
     this.initializeContext();
   }
 
@@ -286,15 +291,31 @@ export class ChatbotComponent {
   }
 
   getConfidenceClass(confidence: number): string {
-    if (confidence >= 0.85) return 'high-confidence';
-    if (confidence >= 0.65) return 'medium-confidence';
-    return 'low-confidence';
+    if (confidence >= 0.85) return 'high';
+    if (confidence >= 0.65) return 'medium';
+    return 'low';
   }
 
   getConfidenceLabel(confidence: number): string {
     if (confidence >= 0.85) return 'High Confidence';
     if (confidence >= 0.65) return 'Uncertain';
     return 'Low Confidence';
+  }
+
+  getConfidenceIcon(confidence: number): string {
+    if (confidence >= 0.85) return 'check_circle';
+    if (confidence >= 0.65) return 'warning';
+    return 'error';
+  }
+
+  getConfidenceColor(confidence: number): 'primary' | 'accent' | 'warn' {
+    if (confidence >= 0.85) return 'primary'; // Blue for high
+    if (confidence >= 0.65) return 'accent'; // Purple for medium
+    return 'warn'; // Orange for low
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   showCorrection(messageIndex: number): void {

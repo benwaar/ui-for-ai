@@ -1,3 +1,9 @@
+/**
+ * App Component Styles - Material Toolbar Edition
+ *
+ * Simplified to work with Material Design toolbar.
+ */
+
 * {
   margin: 0;
   padding: 0;
@@ -6,64 +12,66 @@
 
 .app-container {
   min-height: 100vh;
-  background: #fafafa;
-}
-
-.navbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.nav-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
+  flex-direction: column;
+  background: var(--app-background, #fafafa);
 }
 
-.nav-title {
-  font-size: 24px;
+// Material Toolbar styling
+.app-toolbar {
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
   font-weight: 600;
-  margin: 0;
 }
 
-.nav-links {
+.toolbar-spacer {
+  flex: 1;
+}
+
+.toolbar-nav {
   display: flex;
-  gap: 20px;
+  gap: 8px;
   align-items: center;
 }
 
-.nav-link {
-  padding: 8px 16px;
-  border-radius: 6px;
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s;
-  cursor: pointer;
-
-  &:not(.disabled):hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  &.active {
-    background: rgba(255, 255, 255, 0.3);
-    font-weight: 600;
-  }
-
-  &.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+// Active link styling for toolbar
+.active-link {
+  background: rgba(255, 255, 255, 0.2) !important;
+  font-weight: 600 !important;
 }
 
+// Main content area
 .main-content {
-  padding: 30px 20px;
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .toolbar-title {
+    font-size: 16px;
+
+    mat-icon {
+      display: none;
+    }
+  }
+
+  .toolbar-nav {
+    flex-wrap: wrap;
+    gap: 4px;
+
+    button,
+    a {
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+  }
 }

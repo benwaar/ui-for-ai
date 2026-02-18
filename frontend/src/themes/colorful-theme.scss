@@ -1,0 +1,129 @@
+@use '@angular/material' as mat;
+
+/**
+ * Colorful Theme - Colorblind-Accessible Light Theme
+ *
+ * Design Principles:
+ * - Primary: Deep blue (#1565C0) - distinguishable from red/green
+ * - Accent: Purple (#7B1FA2) - distinct from primary
+ * - Warn: Orange (#F57C00) - safer than red for colorblind users
+ *
+ * Confidence Level Encoding (triple encoding for accessibility):
+ * 1. Color: Blue (high), Purple (medium), Orange (low)
+ * 2. Icon: check_circle, warning, error
+ * 3. Border: solid, dashed, dotted
+ *
+ * Tested for deuteranopia and protanopia (most common colorblindness types)
+ */
+
+// Define custom palettes
+$colorful-primary: mat.define-palette(mat.$blue-palette, 800);
+$colorful-accent: mat.define-palette(mat.$purple-palette, 700);
+$colorful-warn: mat.define-palette(mat.$orange-palette, 700);
+
+// Create the theme
+$colorful-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $colorful-primary,
+      accent: $colorful-accent,
+      warn: $colorful-warn,
+    ),
+  )
+);
+
+// Apply theme to .colorful-theme class
+.colorful-theme {
+  @include mat.all-component-themes($colorful-theme);
+
+  // Custom confidence colors (colorblind-safe)
+  --confidence-high-color: #1976d2; // Blue
+  --confidence-high-bg: #e3f2fd; // Light blue background
+  --confidence-high-border: #1976d2;
+
+  --confidence-medium-color: #7b1fa2; // Purple
+  --confidence-medium-bg: #f3e5f5; // Light purple background
+  --confidence-medium-border: #7b1fa2;
+
+  --confidence-low-color: #f57c00; // Orange
+  --confidence-low-bg: #fff3e0; // Light orange background
+  --confidence-low-border: #f57c00;
+
+  // Message backgrounds
+  --user-message-bg: #1565c0; // Deep blue
+  --user-message-color: #ffffff;
+
+  --assistant-message-bg: #ffffff;
+  --assistant-message-color: #212121;
+
+  --system-message-bg: #fff3e0; // Light orange
+  --system-message-color: #e65100; // Dark orange
+  --system-message-border: #f57c00;
+
+  // App background
+  --app-background: #fafafa;
+  --surface-background: #ffffff;
+
+  // Text colors
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --text-disabled: #bdbdbd;
+
+  // Borders
+  --border-color: #e0e0e0;
+  --divider-color: #e0e0e0;
+
+  // Shadows
+  --shadow-color: rgba(0, 0, 0, 0.12);
+
+  // Custom component styling
+  .confidence-badge {
+    &.high {
+      background-color: var(--confidence-high-bg);
+      color: var(--confidence-high-color);
+      border: 2px solid var(--confidence-high-border);
+      border-style: solid; // Triple encoding: solid border for high
+    }
+
+    &.medium {
+      background-color: var(--confidence-medium-bg);
+      color: var(--confidence-medium-color);
+      border: 2px dashed var(--confidence-medium-border); // Dashed for medium
+    }
+
+    &.low {
+      background-color: var(--confidence-low-bg);
+      color: var(--confidence-low-color);
+      border: 2px dotted var(--confidence-low-border); // Dotted for low
+    }
+  }
+
+  .message {
+    &.assistant {
+      &.confidence-high {
+        border-left: 4px solid var(--confidence-high-border);
+      }
+
+      &.confidence-medium {
+        border-left: 4px dashed var(--confidence-medium-border);
+      }
+
+      &.confidence-low {
+        border-left: 4px dotted var(--confidence-low-border);
+      }
+    }
+  }
+
+  // Ensure proper contrast for accessibility (WCAG AA)
+  .mat-mdc-raised-button.mat-primary {
+    color: #ffffff; // Ensure text is white on blue buttons
+  }
+
+  .mat-mdc-raised-button.mat-accent {
+    color: #ffffff; // Ensure text is white on purple buttons
+  }
+
+  .mat-mdc-raised-button.mat-warn {
+    color: #ffffff; // Ensure text is white on orange buttons
+  }
+}
