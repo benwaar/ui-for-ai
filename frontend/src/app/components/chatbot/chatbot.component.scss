@@ -10,6 +10,7 @@
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 2px solid #e0e0e0;
+  position: relative;
 
   h2 {
     margin: 0;
@@ -21,6 +22,75 @@
     margin: 8px 0 0;
     color: #666;
     font-size: 14px;
+  }
+
+  .btn-context-toggle {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #5568d3;
+    }
+  }
+}
+
+.context-panel {
+  background: #f0f4ff;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  animation: slideDown 0.3s ease-out;
+
+  h4 {
+    margin: 0 0 12px 0;
+    color: #333;
+    font-size: 16px;
+  }
+
+  .context-items {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .context-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 10px;
+    background: white;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-size: 13px;
+
+    .context-key {
+      font-weight: 600;
+      color: #667eea;
+      min-width: 120px;
+    }
+
+    .context-value {
+      flex: 1;
+      color: #333;
+    }
+
+    .context-time {
+      color: #999;
+      font-size: 11px;
+    }
+  }
+
+  .context-empty {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
   }
 }
 
@@ -117,6 +187,14 @@
       background: #f0f0f0;
       border: 2px dashed #ccc;
     }
+  }
+
+  &.system {
+    background: #fff9e6;
+    border: 2px solid #ff9800;
+    border-left: 4px solid #ff9800;
+    margin-right: 20%;
+    font-weight: 500;
   }
 }
 
@@ -256,6 +334,113 @@
     font-size: 13px;
     color: #333;
     border-left: 3px solid #ffc107;
+  }
+}
+
+.failure-state-section {
+  margin-top: 12px;
+  padding: 12px;
+  background: #ffe6e6;
+  border: 1px solid #ff5252;
+  border-radius: 6px;
+
+  .failure-type {
+    font-size: 12px;
+    color: #d32f2f;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .failure-message {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .failure-action {
+    font-size: 13px;
+    color: #1976d2;
+    padding: 8px;
+    background: #e3f2fd;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  .btn-retry {
+    padding: 6px 12px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #218838;
+    }
+  }
+}
+
+.tools-section {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(103, 58, 183, 0.05);
+  border: 1px solid rgba(103, 58, 183, 0.2);
+  border-radius: 6px;
+
+  .tools-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: #673ab7;
+    margin-bottom: 8px;
+  }
+
+  .tools-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tool-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    font-size: 13px;
+    border-left: 3px solid #673ab7;
+
+    &.tool-failed {
+      border-left-color: #dc3545;
+      background: #fff5f5;
+    }
+
+    .tool-icon {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .tool-name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .tool-description {
+      flex: 1;
+      color: #666;
+      font-size: 12px;
+    }
+
+    .tool-time {
+      color: #999;
+      font-size: 11px;
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
   }
 }
 
@@ -414,6 +599,32 @@
       background: #ccc;
       cursor: not-allowed;
     }
+  }
+
+  .btn-interrupt {
+    padding: 14px 32px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    animation: pulse 1.5s infinite;
+
+    &:hover {
+      background: #c82333;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
   }
 }
 

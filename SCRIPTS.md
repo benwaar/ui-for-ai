@@ -98,3 +98,40 @@ npm start
 - `start.sh`: Press `Ctrl+C` in the terminal
 - `start-tmux.sh`: `Ctrl+C` in each pane or `tmux kill-session -t ui-for-ai`
 - `start-separate.sh`: Close each Terminal window or `Ctrl+C` in each
+
+# Additional Scripts
+
+## Git Hooks
+
+Install git hooks for code quality and commit standards:
+
+```bash
+./install-hooks.sh
+```
+
+**What it does:**
+- Installs three git hooks into your `.git/hooks` directory
+- Validates conventional commit message format
+- Performs lightweight pre-commit checks
+
+**Installed hooks:**
+
+1. **pre-commit** - Runs before each commit
+   - Validates `frontend/package.json` JSON syntax
+   - Checks for backend requirements file presence
+   - Prevents broken commits from entering the repository
+
+2. **commit-msg** - Validates commit message format
+   - Enforces conventional commits (e.g., `feat:`, `fix:`, `docs:`)
+   - Valid types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+   - Example: `feat: add chatbot confidence indicator`
+
+3. **prepare-commit-msg** - Provides commit message template
+   - Pre-fills commit message structure to guide formatting
+
+**Skip hooks (not recommended):**
+```bash
+git commit --no-verify
+```
+
+See [install-hooks.sh](install-hooks.sh) for implementation details.

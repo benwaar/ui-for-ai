@@ -34,7 +34,13 @@ trap cleanup SIGINT SIGTERM
 # Start Backend
 echo -e "${BLUE}📦 Starting Flask Backend...${NC}"
 cd backend
-source venv/bin/activate
+
+# Check if Flask is installed
+if ! python -c "import flask" &> /dev/null; then
+    echo -e "${YELLOW}📥 Installing Flask dependencies...${NC}"
+    pip install flask flask-cors
+fi
+
 python app.py &
 BACKEND_PID=$!
 cd ..
@@ -62,8 +68,14 @@ fi
 
 # Use nvm if available
 if [ -f "$HOME/.nvm/nvm.sh" ]; then
-    source "$HOME/.nvm/nvm.sh"
-    nvm use 20 2>/dev/null || true
+    export NVM_DIR="$HOME/.nvm"
+    source "$NVM_DIR/nvm.sh"
+    # Use .nvmrc if it exists, otherwise use latest Node
+    if [ -f ".nvmrc" ]; then
+        nvm use
+    else
+        nvm use 22 2>/dev/null || nvm use default 2>/dev/null || true
+    fi
 fi
 
 npm start &

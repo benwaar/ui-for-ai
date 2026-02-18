@@ -23,7 +23,7 @@ agent_state = {
 @app.route('/api/chatbot/message', methods=['POST'])
 def chatbot_message():
     """
-    Chatbot endpoint with confidence signaling and uncertainty
+    Chatbot endpoint with confidence signaling, uncertainty, and tool execution
     """
     data = request.json
     user_message = data.get('message', '')
@@ -35,6 +35,9 @@ def chatbot_message():
     # Contextual mock responses based on keywords
     msg_lower = user_message.lower()
 
+    # Initialize tools used (simulating tool execution)
+    tools_used = []
+
     # Pattern matching for contextually relevant responses
     if any(word in msg_lower for word in ['ui', 'interface', 'design', 'this']):
         confidence = random.uniform(0.85, 0.95)
@@ -44,6 +47,10 @@ def chatbot_message():
             {"type": "ui_analysis", "name": "Component Structure", "relevance": 0.92},
             {"type": "design_docs", "name": "AI UX Guidelines", "relevance": 0.88}
         ]
+        tools_used = [
+            {"name": "CodeAnalyzer", "description": "Analyzed UI component structure", "execution_time_ms": 245, "success": True},
+            {"name": "DocumentSearch", "description": "Searched design documentation", "execution_time_ms": 189, "success": True}
+        ]
     elif any(word in msg_lower for word in ['authentication', 'auth', 'login', 'user']):
         confidence = random.uniform(0.75, 0.90)
         response_type = "confident"
@@ -51,6 +58,11 @@ def chatbot_message():
         sources = [
             {"type": "documentation", "name": "Auth Best Practices", "relevance": 0.85},
             {"type": "code_search", "name": "Security Module", "relevance": 0.78}
+        ]
+        tools_used = [
+            {"name": "DocumentationSearcher", "description": "Searched security best practices", "execution_time_ms": 312, "success": True},
+            {"name": "CodebaseGrep", "description": "Found authentication implementations", "execution_time_ms": 428, "success": True},
+            {"name": "VulnerabilityScanner", "description": "Checked for security issues", "execution_time_ms": 156, "success": True}
         ]
     elif any(word in msg_lower for word in ['confidence', 'trust', 'certain']):
         confidence = random.uniform(0.80, 0.93)
@@ -60,6 +72,10 @@ def chatbot_message():
             {"type": "research_paper", "name": "Trust Calibration in AI UX", "relevance": 0.91},
             {"type": "ux_guidelines", "name": "PAIR Guidebook", "relevance": 0.87}
         ]
+        tools_used = [
+            {"name": "ResearchPaperSearch", "description": "Found relevant HCI research", "execution_time_ms": 567, "success": True},
+            {"name": "GuidelineParser", "description": "Extracted UX best practices", "execution_time_ms": 203, "success": True}
+        ]
     elif any(word in msg_lower for word in ['routing', 'route', 'navigation']):
         confidence = random.uniform(0.70, 0.82)
         response_type = "uncertain"
@@ -68,6 +84,49 @@ def chatbot_message():
             {"type": "documentation", "name": "Angular Router Guide", "relevance": 0.75},
             {"type": "code_search", "name": "Routes Configuration", "relevance": 0.68}
         ]
+        tools_used = [
+            {"name": "DocumentationSearcher", "description": "Searched Angular docs", "execution_time_ms": 412, "success": True},
+            {"name": "CodebaseGrep", "description": "Searched for route definitions", "execution_time_ms": 289, "success": False},
+            {"name": "SemanticAnalyzer", "description": "Analyzed routing patterns", "execution_time_ms": 334, "success": True}
+        ]
+    elif any(word in msg_lower for word in ['component', 'angular']) and 'ui' not in msg_lower:
+        confidence = random.uniform(0.88, 0.95)
+        response_type = "confident"
+        response = "Angular components are the building blocks of Angular applications. Each component consists of a TypeScript class with a @Component decorator, an HTML template, and optional CSS styles. Modern Angular supports standalone components that don't require NgModules."
+        sources = [
+            {"type": "documentation", "name": "Angular Component Guide", "relevance": 0.93},
+            {"type": "code_examples", "name": "Component Patterns", "relevance": 0.87}
+        ]
+        tools_used = [
+            {"name": "DocumentationSearcher", "description": "Searched Angular component docs", "execution_time_ms": 287, "success": True},
+            {"name": "CodeAnalyzer", "description": "Analyzed component structure", "execution_time_ms": 356, "success": True},
+            {"name": "PatternMatcher", "description": "Found component patterns", "execution_time_ms": 198, "success": True}
+        ]
+    elif any(word in msg_lower for word in ['codebase', 'entire', 'explain all']):
+        confidence = random.uniform(0.82, 0.91)
+        response_type = "confident"
+        response = "This codebase implements a learning lab for AI UX patterns. It consists of an Angular frontend (TypeScript/HTML/SCSS) and a Flask backend (Python). The project demonstrates chatbot interfaces, agent supervision, and decision-making interfaces with features like confidence signaling, context visibility, and graceful failure handling."
+        sources = [
+            {"type": "codebase_scan", "name": "Project Structure", "relevance": 0.89},
+            {"type": "documentation", "name": "README and Design Docs", "relevance": 0.84}
+        ]
+        tools_used = [
+            {"name": "ProjectScanner", "description": "Analyzed project structure", "execution_time_ms": 542, "success": True},
+            {"name": "DependencyAnalyzer", "description": "Mapped dependencies", "execution_time_ms": 423, "success": True},
+            {"name": "DocumentationParser", "description": "Extracted design patterns", "execution_time_ms": 312, "success": True}
+        ]
+    elif any(word in msg_lower for word in ['best practice', 'practices']):
+        confidence = random.uniform(0.85, 0.94)
+        response_type = "confident"
+        response = "Best practices for AI interfaces include: showing confidence levels, providing source transparency, enabling user corrections, maintaining context visibility, separating system and assistant voices, handling failures gracefully, and never claiming false authority. These principles help build trust and usability."
+        sources = [
+            {"type": "research", "name": "AI UX Best Practices", "relevance": 0.91},
+            {"type": "guidelines", "name": "PAIR Guidebook", "relevance": 0.88}
+        ]
+        tools_used = [
+            {"name": "ResearchDatabase", "description": "Searched UX research papers", "execution_time_ms": 467, "success": True},
+            {"name": "GuidelineParser", "description": "Extracted design guidelines", "execution_time_ms": 234, "success": True}
+        ]
     elif len(user_message.strip()) < 5:
         confidence = random.uniform(0.45, 0.65)
         response_type = "low_confidence"
@@ -75,6 +134,10 @@ def chatbot_message():
         sources = [
             {"type": "nlp_analysis", "name": "Query Parser", "relevance": 0.52},
             {"type": "context_analysis", "name": "Conversation History", "relevance": 0.48}
+        ]
+        tools_used = [
+            {"name": "QueryParser", "description": "Analyzed query structure", "execution_time_ms": 89, "success": True},
+            {"name": "ContextRetriever", "description": "Retrieved conversation context", "execution_time_ms": 123, "success": False}
         ]
     else:
         # Generic response with random confidence
@@ -92,6 +155,13 @@ def chatbot_message():
         sources = [
             {"type": "documentation", "name": "API Guide", "relevance": confidence},
             {"type": "code_search", "name": "Repository Scan", "relevance": confidence * 0.8}
+        ]
+
+        # Add realistic tool execution data
+        tools_used = [
+            {"name": "KnowledgeBaseSearch", "description": "Searched documentation", "execution_time_ms": random.randint(150, 400), "success": True},
+            {"name": "CodeAnalyzer", "description": "Analyzed codebase patterns", "execution_time_ms": random.randint(200, 500), "success": confidence > 0.6},
+            {"name": "SemanticParser", "description": "Parsed query intent", "execution_time_ms": random.randint(100, 250), "success": True}
         ]
 
     # Generate contextual alternative interpretations for low confidence
@@ -123,6 +193,7 @@ def chatbot_message():
         "confidence": round(confidence, 2),
         "response_type": response_type,
         "sources": sources,
+        "tools_used": tools_used,  # Add tools execution data
         "timestamp": datetime.now().isoformat(),
         "context_id": context_id or f"ctx_{int(time.time())}",
         "can_correct": True,  # Allow mid-conversation correction

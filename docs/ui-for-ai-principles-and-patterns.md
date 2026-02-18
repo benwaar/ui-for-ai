@@ -1,7 +1,7 @@
-# Core Principles of UI for AI
+# UI for AI: Principles & Patterns
 
 ## Table of Contents
-- [Core Principles of UI for AI](#core-principles-of-ui-for-ai)
+- [UI for AI: Principles \& Patterns](#ui-for-ai-principles--patterns)
   - [Table of Contents](#table-of-contents)
   - [Introduction: Why AI Changes Everything](#introduction-why-ai-changes-everything)
   - [User Mental Models: Deterministic vs Probabilistic Systems](#user-mental-models-deterministic-vs-probabilistic-systems)
@@ -14,6 +14,7 @@
   - [Message Display \& Interaction Patterns](#message-display--interaction-patterns)
   - [Streaming \& Real‑Time Feedback](#streaming--realtime-feedback)
   - [Context \& Memory Management](#context--memory-management)
+  - [Decision-Making Intelligence (DMI) \& AI-Driven Reporting](#decision-making-intelligence-dmi--ai-driven-reporting)
   - [Agent Safety \& Governance](#agent-safety--governance)
   - [Privacy \& Accessibility](#privacy--accessibility)
   - [Graceful Failure \& Recovery](#graceful-failure--recovery)
@@ -52,7 +53,10 @@ Optimize code blocks (language, syntax, copy, lines), render markdown cleanly, a
 Use staged feedback: brief thinking state, stream tokens/chunks, and let users stop/continue. Enable partial copy during streaming, show activity-specific indicators (reading, analyzing, generating), and aim for responsive latency budgets (first token fast, completion controllable).
 
 ## Context & Memory Management
-Make context visible: badges for active files/messages, token usage bars with warnings, and clear options (summarize & continue, start new chat, download history). Be explicit about session memory vs no persistent memory and provide “clear/reset context” affordances.
+Make context visible: badges for active files/messages, token usage bars with warnings, and clear options (summarize & continue, start new chat, download history). Be explicit about session memory vs no persistent memory and provide "clear/reset context" affordances.
+
+## Decision-Making Intelligence (DMI) & AI-Driven Reporting
+DMI shifts from data-first dashboards to decision-first interfaces that answer three critical questions: **What changed?** (current state and trends), **Why?** (root causes with confidence levels), and **What next?** (actionable recommendations with expected impact and risk). Unlike traditional BI that displays charts requiring interpretation, DMI uses AI to generate insights, explain reasoning, and suggest specific actions. Key patterns include confidence-scored predictions, comparative analysis with confidence intervals, prioritized recommendations ranked by impact and risk, and always-visible data quality indicators. Present metrics in context of decisions they inform, not as isolated numbers. Use progressive disclosure: executive summary first, supporting data and methodology on demand. Show AI's reasoning process and uncertainty explicitly—DMI isn't about appearing omniscient, but about making complex data actionable while maintaining appropriate trust calibration.
 
 ## Agent Safety & Governance
 Expose controls and accountability: scopes/permissions, pause/stop/undo, audit trails, and explainability logs. Show planned actions, tool usage, and reversible operations. Calibrate autonomy with gradients and require human review for high‑stakes tasks.

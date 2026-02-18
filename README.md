@@ -1,6 +1,6 @@
 # UI for AI Quickstart: Agents, Chatbots & DMI Reporting
 
-This is a learning lab. The aim is to give a skilled UI developer the principles to read and the study plan to work through, before starting work on a UI for AI. 
+This is a learning lab. The aim is to give a skilled UI developer the principles to read and the study plan to work through, before starting work on a UI for AI project. 
 
 ## Screenshot
 
@@ -8,11 +8,15 @@ This is a learning lab. The aim is to give a skilled UI developer the principles
 
 *Tuesday's Chatbot Interface - demonstrating confidence signaling, source transparency, and correction loops*
 
+## Testing the UIs 
+
+[CHATBOT-TESTER-SCRIPT.md](CHATBOT-TESTER-SCRIPT.md)
+
 ---
 
-## Principles of UI for AI
+## Principles & Patterns
 
-See [docs/ui-for-ai-core-principles.md](docs/ui-for-ai-core-principles.md). Foundational guidelines and curated links for building trustworthy AI UX.
+See [docs/ui-for-ai-principles-and-patterns.md](docs/ui-for-ai-principles-and-patterns.md). Foundational principles, interface patterns, and curated resources for building trustworthy AI UX.
 
 ---
 

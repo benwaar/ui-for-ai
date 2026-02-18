@@ -1,7 +1,25 @@
 <div class="chatbot-container">
   <div class="chatbot-header">
     <h2>Tuesday: Chatbot Interface</h2>
-    <p class="subtitle">Demonstrating: Confidence Signaling, Uncertainty, Correction Loops</p>
+    <p class="subtitle">Demonstrating: Confidence Signaling, Uncertainty, Correction Loops, Interruption, Context Visibility</p>
+    <button class="btn-context-toggle" (click)="toggleContextPanel()">
+      {{ showContextPanel ? '🔽 Hide Context' : '🔼 Show Context' }}
+    </button>
+  </div>
+
+  <!-- Context Visibility Panel -->
+  <div class="context-panel" *ngIf="showContextPanel">
+    <h4>Conversation Context</h4>
+    <div class="context-items">
+      <div *ngFor="let item of conversationContext" class="context-item">
+        <span class="context-key">{{ item.key }}:</span>
+        <span class="context-value">{{ item.value }}</span>
+        <span class="context-time">{{ item.timestamp | date:'shortTime' }}</span>
+      </div>
+      <div *ngIf="conversationContext.length === 0" class="context-empty">
+        No context available
+      </div>
+    </div>
   </div>
 
   <div class="messages-container">
@@ -30,13 +48,52 @@
         <div class="message-content">{{ message.content }}</div>
       </div>
 
+      <!-- System Message -->
+      <div *ngIf="message.type === 'system'"
+           class="message system">
+        <div class="message-header">
+          <span class="sender">🔧 System</span>
+          <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
+        </div>
+        <div class="message-content">{{ message.content }}</div>
+
+        <!-- Failure State Details -->
+        <div class="failure-state-section" *ngIf="message.data?.failure_state">
+          <div class="failure-type">
+            <strong>Type:</strong> {{ message.data?.failure_state?.type }}
+          </div>
+          <div class="failure-message">
+            <strong>Details:</strong> {{ message.data?.failure_state?.message }}
+          </div>
+          <div class="failure-action" *ngIf="message.data?.failure_state?.user_action">
+            <strong>💡 Suggested Action:</strong> {{ message.data?.failure_state?.user_action }}
+          </div>
+          <button *ngIf="message.data?.failure_state?.retry_suggested"
+                  class="btn-retry"
+                  (click)="userInput = conversationContext[conversationContext.length - 2]?.value || ''; sendMessage()">
+            🔄 Retry
+          </button>
+        </div>
+
+        <!-- Alternative Interpretations for System Messages -->
+        <div class="alternatives-section"
+             *ngIf="message.data?.alternative_interpretations && (message.data?.alternative_interpretations?.length ?? 0) > 0">
+          <div class="alternatives-header">⚠️ Did you mean:</div>
+          <div class="alternatives-list">
+            <div *ngFor="let alt of message.data?.alternative_interpretations" class="alternative-item">
+              {{ alt }}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Assistant Message -->
       <div *ngIf="message.type === 'assistant' && message.data"
            class="message assistant"
            [ngClass]="getConfidenceClass(message.data.confidence)">
 
         <div class="message-header">
-          <span class="sender">AI Assistant</span>
+          <span class="sender">🤖 AI Assistant</span>
           <span class="confidence-badge"
                 [ngClass]="getConfidenceClass(message.data.confidence)"
                 [title]="'Confidence: ' + (message.data.confidence * 100) + '%'">
@@ -47,6 +104,19 @@
         </div>
 
         <div class="message-content">{{ message.content }}</div>
+
+        <!-- Tools Used -->
+        <div class="tools-section" *ngIf="message.data.tools_used && message.data.tools_used.length > 0">
+          <div class="tools-header">🔧 Tools Used:</div>
+          <div class="tools-list">
+            <div *ngFor="let tool of message.data.tools_used" class="tool-item" [class.tool-failed]="!tool.success">
+              <span class="tool-icon">{{ tool.success ? '✓' : '✗' }}</span>
+              <span class="tool-name">{{ tool.name }}</span>
+              <span class="tool-description">{{ tool.description }}</span>
+              <span class="tool-time" *ngIf="tool.execution_time_ms">{{ tool.execution_time_ms }}ms</span>
+            </div>
+          </div>
+        </div>
 
         <!-- Sources/Tools Used -->
         <div class="sources-section" *ngIf="message.data.sources && message.data.sources.length > 0">
@@ -135,10 +205,17 @@
       class="message-input"
       [disabled]="isLoading">
     <button
+      *ngIf="!isLoading"
       (click)="sendMessage()"
       class="btn-send"
-      [disabled]="!userInput.trim() || isLoading">
+      [disabled]="!userInput.trim()">
       Send
+    </button>
+    <button
+      *ngIf="isLoading && canInterrupt"
+      (click)="interruptResponse()"
+      class="btn-interrupt">
+      ⏹️ Interrupt
     </button>
   </div>
 
@@ -148,9 +225,14 @@
     <ul>
       <li><strong>Visual confidence hierarchy:</strong> Green (high), Yellow (uncertain), Red (low confidence)</li>
       <li><strong>No false authority:</strong> Always show confidence percentage, not just "yes/no"</li>
+      <li><strong>Voice separation:</strong> Clear distinction between AI Assistant (🤖), System messages (🔧), and User</li>
       <li><strong>Explainable sources:</strong> User can see what data informed the answer</li>
+      <li><strong>Tool transparency:</strong> See which tools were used and their execution status</li>
       <li><strong>Correction without restart:</strong> Fix mistakes inline, maintaining context</li>
-      <li><strong>Failure states:</strong> Network errors, low confidence, alternative interpretations</li>
+      <li><strong>Context visibility:</strong> Toggle to see conversation memory and understanding</li>
+      <li><strong>Interruption control:</strong> Stop long responses mid-stream when needed</li>
+      <li><strong>5 Failure states:</strong> Timeout, Rate limiting, Ambiguous queries, Context loss, Network errors</li>
+      <li><strong>Graceful degradation:</strong> Every failure provides user guidance and retry options</li>
     </ul>
   </div>
 </div>
