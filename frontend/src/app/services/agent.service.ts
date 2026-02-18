@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
@@ -12,9 +12,8 @@ import {
   providedIn: 'root'
 })
 export class AgentService {
+  private http = inject(HttpClient);
   private apiUrl = 'http://localhost:5000/api/agent';
-
-  constructor(private http: HttpClient) {}
 
   getStatus(): Observable<AgentState> {
     return this.http.get<AgentState>(`${this.apiUrl}/status`);

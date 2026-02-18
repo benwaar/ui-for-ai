@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatbotService } from '../../services/chatbot.service';
@@ -29,6 +29,10 @@ interface ContextItem {
   styleUrls: ['./chatbot.component.scss']
 })
 export class ChatbotComponent {
+  private chatbotService = inject(ChatbotService);
+  private cdr = inject(ChangeDetectorRef);
+  public themeService = inject(ThemeService);
+
   messages: MessageDisplay[] = [];
   userInput = '';
   isLoading = false;
@@ -40,14 +44,9 @@ export class ChatbotComponent {
   currentSubscription?: Subscription;
   canInterrupt = false;
   messageCount = 0;
-  theme$;
+  theme$ = this.themeService.theme$;
 
-  constructor(
-    private chatbotService: ChatbotService,
-    private cdr: ChangeDetectorRef,
-    public themeService: ThemeService
-  ) {
-    this.theme$ = this.themeService.theme$;
+  constructor() {
     this.initializeContext();
   }
 
@@ -238,13 +237,11 @@ export class ChatbotComponent {
     }
 
     // Send to API
-    console.log('Sending message:', userMessage);
     this.currentSubscription = this.chatbotService.sendMessage({
       message: userMessage,
       context_id: this.currentContextId
     }).subscribe({
       next: (response) => {
-        console.log('Received response:', response);
         this.currentContextId = response.context_id;
         this.updateContext('AI Response Type', response.response_type);
         this.updateContext('Confidence', `${(response.confidence * 100).toFixed(0)}%`);
@@ -255,7 +252,6 @@ export class ChatbotComponent {
           timestamp: new Date(),
           isInterruptible: false
         });
-        console.log('Messages array:', this.messages);
         this.isLoading = false;
         this.canInterrupt = false;
         this.cdr.detectChanges();
@@ -328,7 +324,7 @@ export class ChatbotComponent {
     this.correctionText = '';
   }
 
-  submitCorrection(message: MessageDisplay, index: number): void {
+  submitCorrection(message: MessageDisplay, _index: number): void {
     if (!this.correctionText.trim() || !message.data) return;
 
     this.chatbotService.correctMessage({
@@ -341,9 +337,12 @@ export class ChatbotComponent {
           type: 'assistant',
           content: response.message,
           data: {
-            ...response,
+            message: response.message,
+            confidence: 1.0,
             response_type: 'confident',
             sources: [],
+            timestamp: new Date().toISOString(),
+            context_id: this.currentContextId || '',
             can_correct: false,
             alternative_interpretations: []
           },
@@ -360,8 +359,8 @@ export class ChatbotComponent {
 
   loadHistory(): void {
     this.chatbotService.getHistory().subscribe({
-      next: (history) => {
-        console.log('Conversation history:', history);
+      next: () => {
+        // History loaded successfully
       },
       error: (error) => {
         console.error('Error loading history:', error);

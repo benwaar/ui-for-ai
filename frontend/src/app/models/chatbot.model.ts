@@ -41,11 +41,16 @@ export interface ChatbotCorrection {
   context_id: string;
 }
 
+export interface ChatbotCorrectionResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface ConversationHistory {
-  history: Array<{
+  history: {
     user: string;
     assistant: ChatbotMessage;
     timestamp: string;
-  }>;
+  }[];
   total_messages: number;
 }
