@@ -2,6 +2,8 @@
 
 This is a learning lab. The aim is to give a skilled UI developer the principles to read and the study plan to work through, before starting work on a UI for AI project. 
 
+It is also useful for testing out different dev tooling options for writing accessible UX for AI projects [docs/ai-tools-for-ui-a11y.md](docs/ai-tools-for-ui-a11y.md).
+
 ## Screenshot
 
 ![Chatbot Interface](docs/chatbot-interface.png)

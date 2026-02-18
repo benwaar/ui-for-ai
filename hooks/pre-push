@@ -1,0 +1,129 @@
+#!/bin/bash
+# Git pre-push hook for UI-for-AI project
+#
+# Runs build validation before pushing to remote repository
+# This catches compilation errors and ensures the app builds successfully
+
+set -e
+
+# Get the git repository root
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+echo "======================================================================"
+echo "Running pre-push checks..."
+echo "======================================================================"
+
+# Track overall success
+ALL_PASSED=true
+
+# Function to run a check
+run_check() {
+    local description="$1"
+    shift
+    local cmd=("$@")
+
+    echo ""
+    echo "🔍 $description..."
+
+    if "${cmd[@]}" > /tmp/pre-push-check.log 2>&1; then
+        echo "✅ $description passed"
+        return 0
+    else
+        echo "❌ $description failed"
+        echo ""
+        cat /tmp/pre-push-check.log
+        ALL_PASSED=false
+        return 1
+    fi
+}
+
+# Check: UI service code coverage
+validate_coverage() {
+    if [ ! -d "frontend" ]; then
+        echo "Note: frontend directory not found — skipping coverage check"
+        return 0
+    fi
+
+    if ! command -v npx >/dev/null 2>&1; then
+        echo "Note: npx not found — skipping coverage check"
+        return 0
+    fi
+
+    # Load NVM and run service coverage tests
+    # Note: Component tests run manually with 'ng test' (see GIT_HOOKS.md)
+    (cd frontend && bash -c 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && nvm use && npm run test:coverage') || {
+        echo "Error: Service coverage check failed"
+        echo ""
+        echo "Coverage report: frontend/coverage/index.html"
+        echo ""
+        echo "Common issues:"
+        echo "  • Service tests failing - check test logic"
+        echo "  • Coverage below threshold (90% lines, 85% branches)"
+        echo "  • Missing test cases for new service features"
+        echo ""
+        echo "To view detailed coverage:"
+        echo "  cd frontend && npm run test:coverage"
+        echo "  open coverage/index.html"
+        echo ""
+        echo "Note: Component tests run manually before major milestones"
+        echo "      See GIT_HOOKS.md for manual testing instructions"
+        echo ""
+        return 1
+    }
+    return 0
+}
+
+# Check: Build the frontend application
+validate_frontend_build() {
+    if [ ! -d "frontend" ]; then
+        echo "Note: frontend directory not found — skipping build check"
+        return 0
+    fi
+
+    if ! command -v npx >/dev/null 2>&1; then
+        echo "Note: npx not found — skipping build check"
+        return 0
+    fi
+
+    # Load NVM and run build
+    (cd frontend && bash -c 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && nvm use && npx ng build --configuration production') || {
+        echo "Error: Production build failed"
+        echo ""
+        echo "Common issues:"
+        echo "  • Check for TypeScript errors"
+        echo "  • Verify all imports are correct"
+        echo "  • Review Angular template syntax"
+        echo ""
+        echo "To debug locally:"
+        echo "  cd frontend && npx ng build"
+        echo ""
+        return 1
+    }
+    return 0
+}
+
+run_check "UI service code coverage" validate_coverage || true
+run_check "Frontend production build" validate_frontend_build || true
+
+# Clean up temp file
+rm -f /tmp/pre-push-check.log
+
+echo ""
+echo "======================================================================"
+
+if [ "$ALL_PASSED" = true ]; then
+    echo "✅ All pre-push checks passed. Ready to push!"
+    echo "======================================================================"
+    exit 0
+else
+    echo "❌ Pre-push checks failed"
+    echo "======================================================================"
+    echo ""
+    echo "Fix the issues above before pushing."
+    echo ""
+    echo "To skip this check (NOT RECOMMENDED):"
+    echo "  git push --no-verify"
+    echo ""
+    exit 1
+fi

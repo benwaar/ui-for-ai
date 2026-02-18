@@ -6,7 +6,16 @@
     "start": "bash -c 'export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && nvm use && ng serve'",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:services": "vitest run --coverage",
+    "test:coverage": "npm run test:services",
+    "test:coverage:ui": "vitest --ui --coverage",
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix",
+    "validate:html": "html-validate 'src/**/*.html'",
+    "validate:html:staged": "html-validate",
+    "test:a11y": "wait-on http://localhost:4200 && pa11y-ci",
+    "test:a11y:json": "wait-on http://localhost:4200 && pa11y-ci --json > pa11y-reports/report.json"
   },
   "prettier": {
     "printWidth": 100,
@@ -31,16 +40,34 @@
     "@angular/forms": "^21.1.0",
     "@angular/material": "^21.1.5",
     "@angular/platform-browser": "^21.1.0",
+    "@angular/platform-browser-dynamic": "^21.1.4",
     "@angular/router": "^21.1.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.0"
   },
   "devDependencies": {
+    "@angular-eslint/builder": "^19.8.1",
+    "@angular-eslint/eslint-plugin": "^19.8.1",
+    "@angular-eslint/eslint-plugin-template": "^19.8.1",
+    "@angular-eslint/schematics": "^19.8.1",
+    "@angular-eslint/template-parser": "^19.8.1",
     "@angular/build": "^21.1.4",
     "@angular/cli": "^21.1.4",
     "@angular/compiler-cli": "^21.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "@vitest/coverage-v8": "^4.0.18",
+    "angular-eslint": "^21.2.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.5.5",
+    "html-validate": "^10.8.0",
     "jsdom": "^27.1.0",
+    "pa11y-ci": "^4.0.1",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "typescript-eslint": "^8.56.0",
+    "vitest": "^4.0.8",
+    "wait-on": "^9.0.4"
   }
 }

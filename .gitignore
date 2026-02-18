@@ -29,6 +29,11 @@ frontend/yarn-error.log
 frontend/testem.log
 frontend/typings/
 
+# Accessibility reports
+frontend/pa11y-reports/*.json
+frontend/pa11y-reports/*.html
+!frontend/pa11y-reports/.gitkeep
+
 # IDE
 .vscode/
 .idea/
