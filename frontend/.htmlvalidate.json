@@ -1,0 +1,61 @@
+{
+  "rules": {
+    "wcag/h30": "error",
+    "wcag/h32": "error",
+    "wcag/h36": "error",
+    "wcag/h37": "error",
+    "wcag/h63": "error",
+    "wcag/h67": "error",
+    "wcag/h71": "error"
+  },
+  "elements": [
+    "html5",
+    {
+      "mat-form-field": {
+        "flow": true
+      },
+      "mat-label": {
+        "flow": true
+      },
+      "mat-card": {
+        "flow": true
+      },
+      "mat-card-header": {
+        "flow": true
+      },
+      "mat-card-content": {
+        "flow": true
+      },
+      "mat-expansion-panel": {
+        "flow": true
+      },
+      "mat-expansion-panel-header": {
+        "flow": true
+      },
+      "mat-panel-title": {
+        "flow": true
+      },
+      "mat-list": {
+        "flow": true
+      },
+      "mat-list-item": {
+        "flow": true
+      },
+      "mat-chip-set": {
+        "flow": true
+      },
+      "mat-chip": {
+        "flow": true
+      },
+      "mat-icon": {
+        "flow": true
+      },
+      "mat-progress-bar": {
+        "flow": true
+      },
+      "mat-progress-spinner": {
+        "flow": true
+      }
+    }
+  ]
+}
