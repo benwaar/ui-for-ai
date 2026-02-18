@@ -8,10 +8,6 @@ This is a learning lab. The aim is to give a skilled UI developer the principles
 
 *Tuesday's Chatbot Interface - demonstrating confidence signaling, source transparency, and correction loops*
 
-## Testing the UIs 
-
-[CHATBOT-TESTER-SCRIPT.md](CHATBOT-TESTER-SCRIPT.md)
-
 ---
 
 ## Principles & Patterns
@@ -26,7 +22,13 @@ See [docs/study-plan.md](docs/study-plan.md). One-week, day-by-day exercises cov
 
 ---
 
-## Docs & Scripts
+## Tester Scripts for Testing the UIs 
+
+[CHATBOT-TESTER-SCRIPT.md](CHATBOT-TESTER-SCRIPT.md)
+
+---
+
+## Additional Docs & Scripts
 
 - Quickstart guide: [QUICKSTART.md](QUICKSTART.md)
 - Scripts overview: [SCRIPTS.md](SCRIPTS.md)
