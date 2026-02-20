@@ -32,8 +32,8 @@ It becomes an active accessibility agent rather than just a chatbot.
 - Playwright MCP (optional)
 - html-validate
 - @angular-eslint
-- Pa11y
-- axe-core
+- Pa11y & axe-core https://github.com/pa11y/pa11y  
+- (alt) https://github.com/priyankark/a11y-mcp  
 
 ### What You Get
 - Claude runs your linters
