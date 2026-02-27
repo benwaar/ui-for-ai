@@ -15,12 +15,13 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 /**
  * MaterialModule - Centralized Material Design component imports
  *
- * This module bundles all Material components used in the chatbot UI:
- * - Buttons: mat-button, mat-raised-button, mat-icon-button
+ * This module bundles all Material components used in the chatbot UI and agent UI:
+ * - Buttons: mat-button, mat-raised-button, mat-icon-button, mat-button-toggle
  * - Forms: mat-form-field, matInput
  * - Layout: mat-card, mat-toolbar, mat-expansion-panel
  * - Indicators: mat-chip, mat-badge, mat-progress-bar, mat-spinner
@@ -46,6 +47,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatDividerModule,
     MatListModule,
     MatToolbarModule,
+    MatButtonToggleModule,
   ],
 })
 export class MaterialModule {}

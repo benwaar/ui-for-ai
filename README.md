@@ -30,6 +30,12 @@ See [docs/study-plan.md](docs/study-plan.md). One-week, day-by-day exercises cov
 
 ---
 
+## Meta Layer: Learning Through Implementation
+
+See [docs/meta-learning-observations.md](docs/meta-learning-observations.md). Observations about the recursive learning experience - how implementing agent supervision UIs mirrors your experience using AI assistants like Claude Code.
+
+---
+
 ## Additional Docs & Scripts
 
 - Quickstart guide: [QUICKSTART.md](QUICKSTART.md)

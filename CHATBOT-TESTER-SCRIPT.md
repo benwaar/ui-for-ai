@@ -311,9 +311,363 @@ Three distinct message types are clearly differentiated:
 
 ---
 
+# Wednesday - Agent Interfaces & Supervision
+
+## Overview
+This test script demonstrates the key concepts from the Wednesday exercise:
+- Agent state & goal visibility
+- Autonomy gradients (manual ↔ automatic)
+- Action logs & explainability
+- Kill switches, pause, undo
+- Subtask breakdown visibility
+- Safe control of autonomous systems
+
+---
+
+## Test Scenarios
+
+### 13. Basic Agent Start with Supervised Mode
+**Goal:** Start an agent with a goal and observe initial state
+
+**Steps:**
+1. Navigate to http://localhost:4200/agent (or click "Wednesday: Agent" in navigation)
+2. In the "Agent Goal" field, type: `"Analyze security requirements for the authentication system"`
+3. Keep autonomy level at "Supervised" (default)
+4. Click "Start"
+
+**Expected Results:**
+- Status chip changes from "IDLE" (gray) to "RUNNING" (green)
+- Status updates every 2 seconds automatically
+- "Subtask Breakdown" panel appears showing 4 subtasks:
+  - Task 1: "Analyze requirements for: [your goal]" - status: in_progress, progress bar starts
+  - Task 2: "Gather necessary resources" - status: pending
+  - Task 3: "Execute main task" - status: pending
+  - Task 4: "Verify results" - status: pending
+- "Action Log" panel appears with first entry: "Agent started"
+- Goal input field and autonomy selector become disabled
+- Pause, Resume buttons become enabled
+
+---
+
+### 14. Autonomy Level Selection
+**Goal:** Understand different autonomy modes
+
+**Steps:**
+1. Before starting an agent, try each autonomy level:
+   - Click "Supervised" - Note the icon (visibility icon)
+   - Click "Semi-Auto" - Note the icon (auto_mode)
+   - Click "Full-Auto" - Note the icon (rocket_launch)
+2. Read the intro card explanation of each mode
+
+**Expected Results:**
+- **Supervised Mode** (Blue chip):
+  - Agent asks for approval before each action
+  - Maximum human oversight
+  - Safest option for critical tasks
+
+- **Semi-Auto Mode** (Purple chip):
+  - Agent proceeds but can be paused
+  - Balanced autonomy with control
+  - Good for routine tasks with review
+
+- **Full-Auto Mode** (Red chip):
+  - Agent runs independently until completion
+  - Minimal human intervention
+  - Fast but requires trust
+
+---
+
+### 15. Subtask Progress Monitoring
+**Goal:** Watch agent make progress through tasks
+
+**Steps:**
+1. Start an agent with any goal (e.g., "Generate technical documentation")
+2. Expand the "Subtask Breakdown" panel if collapsed
+3. Watch the progress bars update every 2 seconds
+4. Observe status changes: pending → in_progress → completed
+
+**Expected Results:**
+- Progress bars fill from 0% to 100%
+- Status icons change:
+  - Pending: Empty circle (radio_button_unchecked)
+  - In Progress: Spinning circle (pending) - Purple color
+  - Completed: Check circle (check_circle) - Blue color
+  - Failed: Error icon (error) - Red color
+- Completion counter in header updates: "Subtasks (1/4 completed)" → "(2/4)" → etc.
+- Completed tasks show 100% progress
+- Each subtask has a status chip showing current state
+
+---
+
+### 16. Action Log for Explainability
+**Goal:** See what the agent is doing and why
+
+**Steps:**
+1. Start an agent with any goal
+2. Expand the "Action Log" panel
+3. Watch entries appear in real-time (every 2 seconds)
+4. Scroll through actions to see the agent's decision trail
+
+**Expected Results:**
+- Action log shows timestamped entries:
+  - "Agent started" - Goal and autonomy level
+  - "Starting task: Analyze requirements..." - Details
+  - "Resource retrieved: [name]" - What was accessed
+  - "Decision made: [choice]" - Reasoning
+  - "Task completed: [task]" - Outcome
+- Timestamps show date and time (e.g., "2/27/26, 5:45 PM")
+- By default, last 10 actions shown
+- "Show All" button appears if more than 10 actions
+- Click "Show All" to see complete history
+- Click "Show Less" to collapse back to 10
+
+---
+
+### 17. Pause and Resume Control
+**Goal:** Safely pause agent execution
+
+**Steps:**
+1. Start an agent with a goal
+2. Wait for 1-2 subtasks to show progress
+3. Click "Pause" button
+4. Wait 5 seconds
+5. Click "Resume" button
+
+**Expected Results:**
+After clicking Pause:
+- Status chip changes to "PAUSED" (orange)
+- Status polling stops (no more automatic updates)
+- Action log shows: "Agent paused by user - Manual intervention"
+- Resume button becomes enabled
+- Pause button becomes disabled
+- Subtask progress freezes at current values
+
+After clicking Resume:
+- Status chip changes back to "RUNNING" (green)
+- Status polling restarts (updates every 2 seconds)
+- Action log shows: "Agent resumed - Continuing from previous state"
+- Subtasks continue progressing from where they stopped
+- Pause button becomes enabled again
+
+---
+
+### 18. Goal Modification Mid-Execution
+**Goal:** Change agent's goal without restarting
+
+**Steps:**
+1. Start an agent with goal: `"Analyze API endpoints"`
+2. Wait for 1-2 subtasks to start
+3. Click the edit icon (✏️) next to "Current Goal:"
+4. In the modification form, type: `"Analyze API endpoints and generate OpenAPI spec"`
+5. Click "Submit"
+
+**Expected Results:**
+- Inline modification form appears with pre-filled current goal
+- After submission:
+  - Current goal updates immediately
+  - Action log shows: "Goal modified - New goal: [updated text]"
+  - Agent continues with new goal
+  - Subtasks may adjust to new goal
+  - No restart needed, context preserved
+
+---
+
+### 19. Emergency Stop (Kill Switch)
+**Goal:** Immediately terminate agent execution
+
+**Steps:**
+1. Start an agent with any goal
+2. Wait for agent to be actively running (2-3 subtasks in progress)
+3. Click the red "Stop" button
+
+**Expected Results:**
+- Status chip changes to "STOPPED" (red)
+- Status polling stops immediately
+- All subtasks disappear
+- Current goal cleared
+- Action log shows: "Agent stopped by user - Emergency stop"
+- Goal input field becomes enabled again
+- All subtasks reset to initial state
+- User can enter new goal and start fresh
+
+---
+
+### 20. Status Polling and Real-Time Updates
+**Goal:** Verify automatic status updates
+
+**Steps:**
+1. Start an agent
+2. Don't interact - just watch
+3. Observe updates happening automatically every 2 seconds
+4. Note the timestamps in action log
+
+**Expected Results:**
+- Without any user interaction, you see:
+  - Subtask progress bars filling gradually
+  - Subtask statuses changing (pending → in_progress → completed)
+  - New action log entries appearing
+  - Completion counter updating
+  - Timestamps advancing every 2 seconds
+- This demonstrates polling mechanism (GET /api/agent/status every 2 seconds)
+- Polling only active when status is "running"
+- Polling stops when paused or stopped
+
+---
+
+### 21. Theme Integration
+**Goal:** Verify agent UI works in both themes
+
+**Steps:**
+1. On the agent page, click the theme toggle (top-right)
+2. Switch between Colorful and Dark themes
+3. Observe color changes for all status indicators
+
+**Expected Results:**
+**Colorful Theme:**
+- Status colors: Idle (gray #757575), Running (green #4caf50), Paused (orange #ff9800), Stopped (red #f44336)
+- Autonomy colors: Supervised (blue #1976d2), Semi-Auto (purple #7b1fa2), Full-Auto (red #d32f2f)
+- Light card backgrounds, dark text
+- High contrast for accessibility
+
+**Dark Theme:**
+- Status colors: Brighter versions (gray #9e9e9e, green #66bb6a, orange #ffa726, red #ef5350)
+- Autonomy colors: Brighter (blue #42a5f5, purple #ab47bc, red #ef5350)
+- Dark card backgrounds, light text
+- Maintained contrast ratios
+
+---
+
+### 22. Multiple Agent Sessions
+**Goal:** Test starting, stopping, and restarting
+
+**Steps:**
+1. Start agent with goal: `"Task A"`
+2. Let it run for 10 seconds
+3. Click "Stop"
+4. Start new agent with goal: `"Task B"`
+5. Observe clean state transition
+
+**Expected Results:**
+- First agent stops cleanly:
+  - All state cleared
+  - No orphaned subtasks
+  - Action log preserved until new start
+- Second agent starts fresh:
+  - New goal displayed
+  - New subtasks generated (4 fresh tasks)
+  - Action log resets with new "Agent started"
+  - No contamination from previous session
+  - Status polling begins again
+
+---
+
+### 23. Empty State
+**Goal:** Verify helpful guidance when no agent active
+
+**Steps:**
+1. Navigate to /agent without starting any agent
+2. Observe the empty state card
+
+**Expected Results:**
+- Large agent icon (smart_toy) displayed
+- Heading: "No Active Agent"
+- Instructions: "Enter a goal and select an autonomy level to start the agent."
+- Helpful hint box with light bulb icon:
+  - "Try: 'Analyze the codebase for security vulnerabilities'"
+  - "Or: 'Generate a technical requirements document'"
+- Professional, encouraging tone
+- Clear call-to-action
+
+---
+
+### 24. Accessibility Verification
+**Goal:** Test keyboard navigation and screen reader compatibility
+
+**Steps:**
+1. On agent page, press Tab repeatedly
+2. Navigate through all interactive elements
+3. Press Enter/Space to activate buttons
+4. Verify ARIA labels (inspect with browser DevTools)
+
+**Expected Results:**
+- Tab order is logical:
+  - Theme toggle
+  - Goal input field
+  - Autonomy level toggles (Tab through all 3)
+  - Start button
+  - Pause/Resume/Stop buttons (when enabled)
+  - Modify goal button (when visible)
+  - Expansion panel headers (subtasks, action log)
+- All buttons respond to Enter/Space
+- Focus indicators visible (blue outline)
+- ARIA attributes present:
+  - `aria-label` on icon-only buttons
+  - `role="progressbar"` on progress bars
+  - `aria-valuenow`, `aria-valuemin`, `aria-valuemax` on progress bars
+  - `aria-labelledby` on autonomy toggle group
+- Color + icon + text encoding ensures info conveyed through multiple channels
+
+---
+
+## Key UX Patterns Demonstrated
+
+1. **Agent State Visibility**
+   - Current status always visible (idle/running/paused/stopped)
+   - Real-time progress monitoring
+   - Subtask breakdown with individual status tracking
+
+2. **Autonomy Gradients**
+   - Three distinct autonomy levels
+   - Visual differentiation (color + icon + text)
+   - Clear explanation of each mode
+
+3. **Action Logs & Explainability**
+   - Complete audit trail of agent decisions
+   - Timestamped actions with details
+   - "Show All" for full history transparency
+
+4. **Safe Control Mechanisms**
+   - Pause: Temporary hold, resumable
+   - Stop: Emergency termination
+   - Modify: Mid-flight goal changes
+   - All reversible except stop
+
+5. **Real-Time Updates**
+   - Automatic status polling (2 seconds)
+   - Progressive subtask completion
+   - Growing action log
+   - No manual refresh needed
+
+6. **Goal Management**
+   - Clear goal visibility
+   - Inline modification without restart
+   - Goal locked during execution (disabled input)
+
+7. **Visual Feedback**
+   - Color-coded status (green/orange/red/gray)
+   - Icon encoding (play/pause/stop/circle)
+   - Progress bars (0-100%)
+   - Triple encoding for accessibility
+
+---
+
+## Design Principles Validated
+
+✅ **State Visibility** - Agent's current state always clear
+✅ **User Control** - Pause, resume, stop, modify at will
+✅ **Explainability** - Action log shows reasoning trail
+✅ **Safe Autonomy** - Multiple levels with appropriate safeguards
+✅ **Real-Time Awareness** - Automatic updates without polling burden
+✅ **Graceful Degradation** - Clean state transitions, no orphaned processes
+✅ **Accessibility** - Triple encoding, keyboard nav, ARIA support
+
+---
+
 ## Notes for Testing
 
 - The chatbot uses simulated responses for demonstration
 - Some failure states trigger based on specific keywords or message count
 - All features are functional in the UI even without a live backend
 - This is a low-fidelity prototype focusing on UX patterns, not production-ready code
+- **New:** Agent backend simulates realistic progression with timed updates
+- Agent subtasks and action logs populate automatically to demonstrate real-world behavior

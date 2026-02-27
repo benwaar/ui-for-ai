@@ -1,0 +1,247 @@
+<div class="agent-container">
+  <!-- Header Card -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>Wednesday: Agent Interfaces & Supervision</mat-card-title>
+      <mat-card-subtitle>Control, visibility, and safe autonomy</mat-card-subtitle>
+      <button mat-icon-button
+              (click)="toggleTheme()"
+              [matTooltip]="(theme$ | async) === 'dark' ? 'Switch to Colorful Theme' : 'Switch to Dark Theme'"
+              aria-label="Toggle theme"
+              class="theme-toggle">
+        <mat-icon>{{ (theme$ | async) === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Intro Card -->
+  <mat-card class="intro-card">
+    <mat-card-content>
+      <p>
+        <strong>Key Concepts:</strong> This interface demonstrates agent supervision patterns for AI systems.
+        Control the agent's behavior through <em>autonomy gradients</em>, monitor progress via <em>subtask breakdown</em>,
+        and maintain transparency through the <em>action log</em>. The pause/resume/stop controls provide safe interaction with autonomous systems.
+      </p>
+      <mat-divider></mat-divider>
+      <p class="autonomy-explanation">
+        <mat-icon>info</mat-icon>
+        <strong>Autonomy Levels:</strong>
+        <span><strong>Supervised</strong> – Agent asks for approval before each action</span> |
+        <span><strong>Semi-Auto</strong> – Agent proceeds but can be paused</span> |
+        <span><strong>Full-Auto</strong> – Agent runs independently until completion</span>
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Control Panel Card -->
+  <mat-card class="control-panel-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>settings</mat-icon>
+        Agent Control Panel
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Goal Input -->
+      <mat-form-field appearance="outline" class="goal-input">
+        <mat-label>Agent Goal</mat-label>
+        <input matInput
+               [(ngModel)]="goalInput"
+               [disabled]="agentState.status === 'running' || agentState.status === 'paused'"
+               placeholder="e.g., Analyze security requirements for the authentication system"
+               aria-label="Agent goal input">
+        <mat-icon matSuffix>flag</mat-icon>
+      </mat-form-field>
+
+      <!-- Autonomy Level Selector -->
+      <div class="autonomy-selector">
+        <label id="autonomy-label">Autonomy Level:</label>
+        <mat-button-toggle-group [(ngModel)]="autonomyLevel"
+                                  [disabled]="agentState.status === 'running' || agentState.status === 'paused'"
+                                  aria-labelledby="autonomy-label"
+                                  class="autonomy-toggle-group">
+          <mat-button-toggle value="supervised" aria-label="Supervised mode">
+            <mat-icon>visibility</mat-icon>
+            Supervised
+          </mat-button-toggle>
+          <mat-button-toggle value="semi-auto" aria-label="Semi-automatic mode">
+            <mat-icon>auto_mode</mat-icon>
+            Semi-Auto
+          </mat-button-toggle>
+          <mat-button-toggle value="full-auto" aria-label="Fully automatic mode">
+            <mat-icon>rocket_launch</mat-icon>
+            Full-Auto
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <!-- Control Buttons -->
+      <div class="control-buttons">
+        <button mat-raised-button
+                color="primary"
+                (click)="startAgent()"
+                [disabled]="!goalInput.trim() || agentState.status === 'running' || agentState.status === 'paused'"
+                aria-label="Start agent">
+          <mat-icon>play_arrow</mat-icon>
+          Start
+        </button>
+        <button mat-raised-button
+                color="accent"
+                (click)="pauseAgent()"
+                [disabled]="agentState.status !== 'running'"
+                aria-label="Pause agent">
+          <mat-icon>pause</mat-icon>
+          Pause
+        </button>
+        <button mat-raised-button
+                color="accent"
+                (click)="resumeAgent()"
+                [disabled]="agentState.status !== 'paused'"
+                aria-label="Resume agent">
+          <mat-icon>play_arrow</mat-icon>
+          Resume
+        </button>
+        <button mat-raised-button
+                color="warn"
+                (click)="stopAgent()"
+                [disabled]="agentState.status === 'idle' || agentState.status === 'stopped'"
+                aria-label="Stop agent (kill switch)">
+          <mat-icon>stop</mat-icon>
+          Stop
+        </button>
+      </div>
+
+      <!-- Status Display -->
+      <div class="status-display">
+        <mat-chip-set aria-label="Agent status">
+          <mat-chip [highlighted]="true" [class]="'status-' + agentState.status">
+            <mat-icon matChipAvatar>{{ getStatusIcon(agentState.status) }}</mat-icon>
+            Status: {{ agentState.status | uppercase }}
+          </mat-chip>
+          <mat-chip *ngIf="agentState.autonomy_level" [highlighted]="true" [class]="getAutonomyClass()">
+            <mat-icon matChipAvatar>settings</mat-icon>
+            {{ getAutonomyLabel(agentState.autonomy_level) }}
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <!-- Current Goal Display -->
+      <div class="current-goal" *ngIf="agentState.current_goal && !isModifyingGoal">
+        <div class="goal-header">
+          <strong>Current Goal:</strong>
+          <button mat-icon-button
+                  (click)="showModifyGoalForm()"
+                  [disabled]="agentState.status === 'idle' || agentState.status === 'stopped'"
+                  matTooltip="Modify goal"
+                  aria-label="Modify agent goal">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        <p>{{ agentState.current_goal }}</p>
+      </div>
+
+      <!-- Modify Goal Form -->
+      <div class="modify-goal-form" *ngIf="isModifyingGoal">
+        <mat-form-field appearance="outline" class="modify-goal-input">
+          <mat-label>Modified Goal</mat-label>
+          <input matInput
+                 [(ngModel)]="modifiedGoalInput"
+                 placeholder="Enter new goal"
+                 aria-label="Modified goal input">
+        </mat-form-field>
+        <div class="modify-goal-actions">
+          <button mat-raised-button
+                  color="primary"
+                  (click)="submitModifiedGoal()"
+                  [disabled]="!modifiedGoalInput.trim()"
+                  aria-label="Submit modified goal">
+            <mat-icon>check</mat-icon>
+            Submit
+          </button>
+          <button mat-button
+                  (click)="cancelModifyGoal()"
+                  aria-label="Cancel goal modification">
+            <mat-icon>close</mat-icon>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Subtasks Panel -->
+  <mat-expansion-panel *ngIf="agentState.subtasks && agentState.subtasks.length > 0" class="subtasks-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>checklist</mat-icon>
+        Subtask Breakdown ({{ completedSubtasks }}/{{ agentState.subtasks.length }} completed)
+      </mat-panel-title>
+      <mat-panel-description>
+        Granular view of agent progress
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <mat-list>
+      <mat-list-item *ngFor="let subtask of agentState.subtasks">
+        <mat-icon matListItemIcon [color]="getSubtaskColor(subtask.status)">
+          {{ getSubtaskIcon(subtask.status) }}
+        </mat-icon>
+        <div matListItemTitle>{{ subtask.task }}</div>
+        <div matListItemLine class="subtask-progress">
+          <mat-progress-bar mode="determinate"
+                            [value]="subtask.progress"
+                            [color]="getSubtaskColor(subtask.status)"
+                            role="progressbar"
+                            [attr.aria-valuenow]="subtask.progress"
+                            [attr.aria-valuemin]="0"
+                            [attr.aria-valuemax]="100"
+                            [attr.aria-label]="'Progress: ' + subtask.progress + '%'">
+          </mat-progress-bar>
+          <span class="progress-label">{{ subtask.progress }}%</span>
+        </div>
+        <mat-chip matListItemMeta class="subtask-status-chip">{{ subtask.status }}</mat-chip>
+      </mat-list-item>
+    </mat-list>
+  </mat-expansion-panel>
+
+  <!-- Action Log Panel -->
+  <mat-expansion-panel *ngIf="agentState.action_log && agentState.action_log.length > 0" class="action-log-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>history</mat-icon>
+        Action Log ({{ agentState.action_log.length }} actions)
+      </mat-panel-title>
+      <mat-panel-description>
+        Explainability trail for agent decisions
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <mat-list>
+      <mat-list-item *ngFor="let action of visibleActions">
+        <mat-icon matListItemIcon>play_arrow</mat-icon>
+        <div matListItemTitle>{{ action.action }}</div>
+        <div matListItemLine>{{ action.details }}</div>
+        <span matListItemMeta class="action-timestamp">
+          {{ formatTimestamp(action.timestamp) | date:'short' }}
+        </span>
+      </mat-list-item>
+    </mat-list>
+    <div class="action-log-footer" *ngIf="hasMoreActions">
+      <button mat-button (click)="toggleShowAllActions()" aria-label="Toggle show all actions">
+        <mat-icon>{{ showAllActions ? 'expand_less' : 'expand_more' }}</mat-icon>
+        {{ showAllActions ? 'Show Less' : 'Show All Actions' }}
+      </button>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- Empty State -->
+  <mat-card class="empty-state" *ngIf="agentState.status === 'idle' && !agentState.current_goal">
+    <mat-card-content>
+      <mat-icon class="empty-icon">smart_toy</mat-icon>
+      <h3>No Active Agent</h3>
+      <p>Enter a goal and select an autonomy level to start the agent.</p>
+      <p class="empty-hint">
+        <mat-icon>tips_and_updates</mat-icon>
+        Try: "Analyze the codebase for security vulnerabilities" or "Generate a technical requirements document"
+      </p>
+    </mat-card-content>
+  </mat-card>
+</div>

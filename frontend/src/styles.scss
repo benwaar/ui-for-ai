@@ -45,6 +45,21 @@
   --divider-color: #e0e0e0;
 
   --shadow-color: rgba(0, 0, 0, 0.12);
+
+  // Agent status colors
+  --agent-idle-color: #757575;
+  --agent-running-color: #4caf50;
+  --agent-paused-color: #ff9800;
+  --agent-stopped-color: #f44336;
+
+  // Autonomy level colors
+  --autonomy-supervised-color: #1976d2;
+  --autonomy-semi-auto-color: #7b1fa2;
+  --autonomy-full-auto-color: #d32f2f;
+
+  --primary-color: #1976d2;
+  --accent-color: #7b1fa2;
+  --card-background: #ffffff;
 }
 
 // Apply dark theme
@@ -83,6 +98,21 @@
   --divider-color: #424242;
 
   --shadow-color: rgba(0, 0, 0, 0.5);
+
+  // Agent status colors (brighter for dark theme)
+  --agent-idle-color: #9e9e9e;
+  --agent-running-color: #66bb6a;
+  --agent-paused-color: #ffa726;
+  --agent-stopped-color: #ef5350;
+
+  // Autonomy level colors (brighter for dark theme)
+  --autonomy-supervised-color: #42a5f5;
+  --autonomy-semi-auto-color: #ab47bc;
+  --autonomy-full-auto-color: #ef5350;
+
+  --primary-color: #42a5f5;
+  --accent-color: #ab47bc;
+  --card-background: #1e1e1e;
 
   *::-webkit-scrollbar-track {
     background: #1e1e1e;

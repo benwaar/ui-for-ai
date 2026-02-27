@@ -1,0 +1,367 @@
+.agent-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  min-height: calc(100vh - 64px);
+}
+
+// Header Card
+.header-card {
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  mat-card-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  mat-card-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .theme-toggle {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+  }
+}
+
+// Intro Card
+.intro-card {
+  background-color: var(--card-background);
+
+  p {
+    margin: 0 0 12px 0;
+    line-height: 1.6;
+    color: var(--text-primary);
+
+    strong {
+      color: var(--text-primary);
+    }
+
+    em {
+      font-style: italic;
+      color: var(--accent-color);
+    }
+  }
+
+  mat-divider {
+    margin: 12px 0;
+  }
+
+  .autonomy-explanation {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background-color: var(--surface-background);
+    border-radius: 4px;
+    border-left: 4px solid var(--primary-color);
+
+    mat-icon {
+      color: var(--primary-color);
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    span {
+      display: block;
+      margin-left: 32px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+  }
+}
+
+// Control Panel Card
+.control-panel-card {
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .goal-input {
+    width: 100%;
+  }
+
+  .autonomy-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .autonomy-toggle-group {
+      display: flex;
+      width: 100%;
+
+      mat-button-toggle {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        mat-icon {
+          font-size: 18px;
+          height: 18px;
+          width: 18px;
+        }
+      }
+    }
+  }
+
+  .control-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  .status-display {
+    mat-chip-set {
+      display: flex;
+      gap: 8px;
+    }
+
+    mat-chip {
+      font-weight: 500;
+
+      &.status-idle {
+        background-color: var(--agent-idle-color) !important;
+        color: white;
+      }
+
+      &.status-running {
+        background-color: var(--agent-running-color) !important;
+        color: white;
+      }
+
+      &.status-paused {
+        background-color: var(--agent-paused-color) !important;
+        color: white;
+      }
+
+      &.status-stopped {
+        background-color: var(--agent-stopped-color) !important;
+        color: white;
+      }
+
+      &.autonomy-supervised {
+        background-color: var(--autonomy-supervised-color) !important;
+        color: white;
+      }
+
+      &.autonomy-semi-auto {
+        background-color: var(--autonomy-semi-auto-color) !important;
+        color: white;
+      }
+
+      &.autonomy-full-auto {
+        background-color: var(--autonomy-full-auto-color) !important;
+        color: white;
+      }
+    }
+  }
+
+  .current-goal {
+    padding: 12px;
+    background-color: var(--surface-background);
+    border-radius: 4px;
+    border-left: 4px solid var(--primary-color);
+
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      strong {
+        color: var(--text-primary);
+      }
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+  }
+
+  .modify-goal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    background-color: var(--surface-background);
+    border-radius: 4px;
+
+    .modify-goal-input {
+      width: 100%;
+    }
+
+    .modify-goal-actions {
+      display: flex;
+      gap: 8px;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+  }
+}
+
+// Subtasks Panel
+.subtasks-panel {
+  mat-list-item {
+    margin-bottom: 8px;
+
+    .subtask-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+
+      mat-progress-bar {
+        flex: 1;
+      }
+
+      .progress-label {
+        min-width: 45px;
+        text-align: right;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .subtask-status-chip {
+      text-transform: capitalize;
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// Action Log Panel
+.action-log-panel {
+  mat-list-item {
+    mat-icon[matListItemIcon] {
+      color: var(--primary-color);
+    }
+
+    .action-timestamp {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+  }
+
+  .action-log-footer {
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+    border-top: 1px solid var(--divider-color);
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--text-disabled);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 16px 0 8px 0;
+    color: var(--text-primary);
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin: 8px 0;
+  }
+
+  .empty-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px;
+    background-color: var(--surface-background);
+    border-radius: 4px;
+    font-style: italic;
+
+    mat-icon {
+      color: var(--accent-color);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .agent-container {
+    padding: 8px;
+  }
+
+  .control-buttons {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .header-card mat-card-title {
+    font-size: 1.25rem;
+  }
+
+  .autonomy-selector .autonomy-toggle-group {
+    flex-direction: column;
+
+    mat-button-toggle {
+      width: 100%;
+    }
+  }
+}

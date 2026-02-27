@@ -3,6 +3,7 @@ from flask_cors import CORS
 import random
 import time
 from datetime import datetime
+import threading
 
 app = Flask(__name__)
 CORS(app)
@@ -13,8 +14,11 @@ agent_state = {
     "status": "idle",
     "current_goal": None,
     "subtasks": [],
-    "action_log": []
+    "action_log": [],
+    "last_update": None
 }
+agent_lock = threading.Lock()
+agent_thread = None
 
 # ============== CHATBOT API ==============
 # Tuesday: Chatbot & Conversational Interfaces
@@ -88,6 +92,55 @@ def chatbot_message():
             {"name": "DocumentationSearcher", "description": "Searched Angular docs", "execution_time_ms": 412, "success": True},
             {"name": "CodebaseGrep", "description": "Searched for route definitions", "execution_time_ms": 289, "success": False},
             {"name": "SemanticAnalyzer", "description": "Analyzed routing patterns", "execution_time_ms": 334, "success": True}
+        ]
+    elif any(word in msg_lower for word in ['agent', 'autonomous', 'supervision', 'wednesday']):
+        confidence = random.uniform(0.86, 0.94)
+        response_type = "confident"
+        response = "Agent interfaces demonstrate how to design control surfaces for autonomous AI systems. Key patterns include: state visibility (showing what the agent is doing), autonomy gradients (supervised/semi-auto/full-auto), action logs for explainability, and safe control mechanisms (pause/resume/stop). Navigate to the 'Wednesday: Agent' section to explore these patterns interactively."
+        sources = [
+            {"type": "design_patterns", "name": "Agent Supervision UX", "relevance": 0.91},
+            {"type": "ui_examples", "name": "Control Panel Patterns", "relevance": 0.88},
+            {"type": "research", "name": "Human-Agent Interaction", "relevance": 0.84}
+        ]
+        tools_used = [
+            {"name": "ProjectScanner", "description": "Located agent component implementation", "execution_time_ms": 198, "success": True},
+            {"name": "GuidelineParser", "description": "Extracted supervision best practices", "execution_time_ms": 234, "success": True}
+        ]
+    elif any(word in msg_lower for word in ['subtask', 'progress', 'task breakdown']):
+        confidence = random.uniform(0.82, 0.92)
+        response_type = "confident"
+        response = "Subtask breakdown is a key visibility pattern in agent UIs. It shows users the agent's plan decomposed into smaller steps, with individual progress bars and status indicators (pending/in-progress/completed/failed). This helps users understand what the agent is doing and builds appropriate trust through transparency."
+        sources = [
+            {"type": "ui_patterns", "name": "Progress Visualization", "relevance": 0.89},
+            {"type": "design_docs", "name": "Agent State Display", "relevance": 0.85}
+        ]
+        tools_used = [
+            {"name": "DocumentationSearcher", "description": "Found progress pattern guidelines", "execution_time_ms": 276, "success": True},
+            {"name": "CodeAnalyzer", "description": "Analyzed subtask component", "execution_time_ms": 193, "success": True}
+        ]
+    elif any(word in msg_lower for word in ['action log', 'explainability', 'transparency']):
+        confidence = random.uniform(0.84, 0.93)
+        response_type = "confident"
+        response = "Action logs provide explainability for agent decisions. Each timestamped entry shows what action the agent took and why, creating an audit trail users can review. This transparency builds trust and helps debug issues. Best practice: show last 10 actions by default with 'Show All' option for full history."
+        sources = [
+            {"type": "research", "name": "Explainable AI Principles", "relevance": 0.92},
+            {"type": "ui_patterns", "name": "Audit Trail Display", "relevance": 0.87}
+        ]
+        tools_used = [
+            {"name": "ResearchPaperSearch", "description": "Found XAI literature", "execution_time_ms": 445, "success": True},
+            {"name": "GuidelineParser", "description": "Extracted logging best practices", "execution_time_ms": 212, "success": True}
+        ]
+    elif any(word in msg_lower for word in ['autonomy', 'supervised', 'semi-auto', 'full-auto']):
+        confidence = random.uniform(0.87, 0.95)
+        response_type = "confident"
+        response = "Autonomy gradients give users control over how much independence an agent has. Supervised mode requires approval for each action (safest), semi-auto allows pausing (balanced), and full-auto runs independently (fastest). Different tasks need different autonomy levels - use supervised for critical operations, full-auto for routine tasks."
+        sources = [
+            {"type": "research", "name": "Human-AI Collaboration Models", "relevance": 0.91},
+            {"type": "design_patterns", "name": "Autonomy Control UX", "relevance": 0.88}
+        ]
+        tools_used = [
+            {"name": "ResearchPaperSearch", "description": "Found autonomy research", "execution_time_ms": 389, "success": True},
+            {"name": "DependencyAnalyzer", "description": "Analyzed control patterns", "execution_time_ms": 167, "success": True}
         ]
     elif any(word in msg_lower for word in ['component', 'angular']) and 'ui' not in msg_lower:
         confidence = random.uniform(0.88, 0.95)
@@ -238,6 +291,92 @@ def chatbot_history():
 # Wednesday: Agent Interfaces & Supervision
 # Key concepts: state visibility, autonomy control, action logs
 
+def simulate_agent_work():
+    """
+    Background thread that simulates agent making progress
+    Updates subtasks and adds action log entries over time
+    """
+    global agent_state
+
+    action_examples = [
+        ("Scanning codebase structure", "Located 47 files across 12 directories"),
+        ("Analyzing dependencies", "Found 23 npm packages and 8 dev dependencies"),
+        ("Running security scan", "Checked for 156 known vulnerabilities"),
+        ("Reviewing code patterns", "Identified 3 potential improvements"),
+        ("Gathering documentation", "Retrieved API specs and README files"),
+        ("Consulting best practices", "Cross-referenced with industry standards"),
+        ("Generating summary", "Compiled findings into structured report"),
+        ("Validating results", "Performed quality check on outputs"),
+        ("Organizing deliverables", "Structured final documentation"),
+        ("Preparing recommendations", "Listed actionable next steps"),
+    ]
+
+    step_counter = 0
+
+    while True:
+        time.sleep(2)  # Update every 2 seconds
+
+        with agent_lock:
+            if agent_state["status"] != "running":
+                break
+
+            # Update subtasks progressively
+            updated = False
+            for subtask in agent_state["subtasks"]:
+                if subtask["status"] == "pending":
+                    # Start the first pending task
+                    subtask["status"] = "in_progress"
+                    subtask["progress"] = 10
+                    agent_state["action_log"].append({
+                        "timestamp": datetime.now().isoformat(),
+                        "action": f"Starting task: {subtask['task']}",
+                        "details": "Initializing resources and gathering context"
+                    })
+                    updated = True
+                    break
+                elif subtask["status"] == "in_progress":
+                    # Progress the in-progress task
+                    if subtask["progress"] < 100:
+                        subtask["progress"] = min(100, subtask["progress"] + random.randint(10, 25))
+
+                        # Add random action log entry
+                        if step_counter % 2 == 0 and step_counter < len(action_examples):
+                            action, details = action_examples[step_counter // 2]
+                            agent_state["action_log"].append({
+                                "timestamp": datetime.now().isoformat(),
+                                "action": action,
+                                "details": details
+                            })
+
+                        updated = True
+
+                    if subtask["progress"] >= 100:
+                        # Complete this task
+                        subtask["status"] = "completed"
+                        subtask["progress"] = 100
+                        agent_state["action_log"].append({
+                            "timestamp": datetime.now().isoformat(),
+                            "action": f"Task completed: {subtask['task']}",
+                            "details": "All requirements met, moving to next task"
+                        })
+                        updated = True
+                    break
+
+            step_counter += 1
+
+            # Check if all tasks are completed
+            if all(t["status"] == "completed" for t in agent_state["subtasks"]):
+                agent_state["status"] = "stopped"
+                agent_state["action_log"].append({
+                    "timestamp": datetime.now().isoformat(),
+                    "action": "All tasks completed successfully",
+                    "details": f"Goal achieved: {agent_state['current_goal']}"
+                })
+                break
+
+            if updated:
+                agent_state["last_update"] = datetime.now().isoformat()
+
 @app.route('/api/agent/status', methods=['GET'])
 def agent_status():
     """
@@ -248,59 +387,101 @@ def agent_status():
 @app.route('/api/agent/start', methods=['POST'])
 def agent_start():
     """
-    Start agent with a goal
+    Start agent with a goal and background simulation
     """
+    global agent_thread
+
     data = request.json
     goal = data.get('goal', '')
     autonomy_level = data.get('autonomy_level', 'supervised')  # supervised, semi-auto, full-auto
 
-    # Generate subtasks
-    subtasks = [
-        {"id": 1, "task": f"Analyze requirements for: {goal}", "status": "pending", "progress": 0},
-        {"id": 2, "task": "Gather necessary resources", "status": "pending", "progress": 0},
-        {"id": 3, "task": "Execute main task", "status": "pending", "progress": 0},
-        {"id": 4, "task": "Verify results", "status": "pending", "progress": 0}
-    ]
+    # Generate subtasks based on goal keywords
+    goal_lower = goal.lower()
+    if any(word in goal_lower for word in ['security', 'vulnerability', 'audit']):
+        subtasks = [
+            {"id": 1, "task": f"Analyze security requirements for: {goal}", "status": "pending", "progress": 0},
+            {"id": 2, "task": "Run security vulnerability scan", "status": "pending", "progress": 0},
+            {"id": 3, "task": "Review authentication and authorization", "status": "pending", "progress": 0},
+            {"id": 4, "task": "Generate security report with recommendations", "status": "pending", "progress": 0}
+        ]
+    elif any(word in goal_lower for word in ['document', 'documentation', 'spec']):
+        subtasks = [
+            {"id": 1, "task": f"Analyze scope for: {goal}", "status": "pending", "progress": 0},
+            {"id": 2, "task": "Gather code structure and API definitions", "status": "pending", "progress": 0},
+            {"id": 3, "task": "Generate documentation content", "status": "pending", "progress": 0},
+            {"id": 4, "task": "Format and validate documentation", "status": "pending", "progress": 0}
+        ]
+    elif any(word in goal_lower for word in ['analyze', 'review', 'check']):
+        subtasks = [
+            {"id": 1, "task": f"Define analysis criteria for: {goal}", "status": "pending", "progress": 0},
+            {"id": 2, "task": "Collect and organize data", "status": "pending", "progress": 0},
+            {"id": 3, "task": "Perform detailed analysis", "status": "pending", "progress": 0},
+            {"id": 4, "task": "Summarize findings and recommendations", "status": "pending", "progress": 0}
+        ]
+    else:
+        subtasks = [
+            {"id": 1, "task": f"Understand requirements for: {goal}", "status": "pending", "progress": 0},
+            {"id": 2, "task": "Gather necessary resources and context", "status": "pending", "progress": 0},
+            {"id": 3, "task": "Execute primary task", "status": "pending", "progress": 0},
+            {"id": 4, "task": "Verify and validate results", "status": "pending", "progress": 0}
+        ]
 
-    agent_state.update({
-        "status": "running",
-        "current_goal": goal,
-        "autonomy_level": autonomy_level,
-        "subtasks": subtasks,
-        "started_at": datetime.now().isoformat(),
-        "action_log": [{
-            "timestamp": datetime.now().isoformat(),
-            "action": "Agent started",
-            "details": f"Goal: {goal}, Autonomy: {autonomy_level}"
-        }]
-    })
+    with agent_lock:
+        agent_state.update({
+            "status": "running",
+            "current_goal": goal,
+            "autonomy_level": autonomy_level,
+            "subtasks": subtasks,
+            "started_at": datetime.now().isoformat(),
+            "last_update": datetime.now().isoformat(),
+            "action_log": [{
+                "timestamp": datetime.now().isoformat(),
+                "action": "Agent started",
+                "details": f"Goal: {goal}, Autonomy: {autonomy_level}"
+            }]
+        })
+
+    # Start background thread to simulate agent work
+    agent_thread = threading.Thread(target=simulate_agent_work, daemon=True)
+    agent_thread.start()
 
     return jsonify(agent_state)
 
 @app.route('/api/agent/pause', methods=['POST'])
 def agent_pause():
     """
-    Pause agent execution
+    Pause agent execution (stops background thread)
     """
-    agent_state["status"] = "paused"
-    agent_state["action_log"].append({
-        "timestamp": datetime.now().isoformat(),
-        "action": "Agent paused by user",
-        "details": "Manual intervention"
-    })
+    with agent_lock:
+        agent_state["status"] = "paused"
+        agent_state["action_log"].append({
+            "timestamp": datetime.now().isoformat(),
+            "action": "Agent paused by user",
+            "details": "Manual intervention - execution suspended"
+        })
+        agent_state["last_update"] = datetime.now().isoformat()
     return jsonify(agent_state)
 
 @app.route('/api/agent/resume', methods=['POST'])
 def agent_resume():
     """
-    Resume agent execution
+    Resume agent execution (restarts background thread)
     """
-    agent_state["status"] = "running"
-    agent_state["action_log"].append({
-        "timestamp": datetime.now().isoformat(),
-        "action": "Agent resumed",
-        "details": "Continuing from previous state"
-    })
+    global agent_thread
+
+    with agent_lock:
+        agent_state["status"] = "running"
+        agent_state["action_log"].append({
+            "timestamp": datetime.now().isoformat(),
+            "action": "Agent resumed",
+            "details": "Continuing from previous state"
+        })
+        agent_state["last_update"] = datetime.now().isoformat()
+
+    # Restart background thread
+    agent_thread = threading.Thread(target=simulate_agent_work, daemon=True)
+    agent_thread.start()
+
     return jsonify(agent_state)
 
 @app.route('/api/agent/stop', methods=['POST'])
@@ -308,32 +489,38 @@ def agent_stop():
     """
     Stop agent completely (kill switch)
     """
-    agent_state.update({
-        "status": "stopped",
-        "current_goal": None,
-        "subtasks": []
-    })
-    agent_state["action_log"].append({
-        "timestamp": datetime.now().isoformat(),
-        "action": "Agent stopped by user",
-        "details": "Emergency stop"
-    })
+    with agent_lock:
+        agent_state["action_log"].append({
+            "timestamp": datetime.now().isoformat(),
+            "action": "Agent stopped by user",
+            "details": "Emergency stop - all processes terminated"
+        })
+        agent_state.update({
+            "status": "stopped",
+            "current_goal": None,
+            "subtasks": [],
+            "last_update": datetime.now().isoformat()
+        })
     return jsonify(agent_state)
 
 @app.route('/api/agent/modify', methods=['POST'])
 def agent_modify():
     """
-    Modify agent goal or subtasks
+    Modify agent goal mid-execution
     """
     data = request.json
     new_goal = data.get('goal', agent_state.get('current_goal'))
+    old_goal = agent_state.get('current_goal')
 
-    agent_state["current_goal"] = new_goal
-    agent_state["action_log"].append({
-        "timestamp": datetime.now().isoformat(),
-        "action": "Goal modified",
-        "details": f"New goal: {new_goal}"
-    })
+    with agent_lock:
+        agent_state["current_goal"] = new_goal
+        agent_state["action_log"].append({
+            "timestamp": datetime.now().isoformat(),
+            "action": "Goal modified by user",
+            "details": f"Previous: '{old_goal}' → New: '{new_goal}'"
+        })
+        agent_state["last_update"] = datetime.now().isoformat()
+
     return jsonify(agent_state)
 
 @app.route('/api/agent/action-log', methods=['GET'])
