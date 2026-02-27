@@ -1,5 +1,7 @@
 # UI for AI Quickstart: Agents, Chatbots & DMI Reporting
 
+[![CI](https://github.com/benwaar/ui-for-ai/workflows/CI/badge.svg)](https://github.com/benwaar/ui-for-ai/actions)
+
 This is a learning lab. The aim is to give a skilled UI developer the [principles](docs/ui-for-ai-principles-and-patterns.md) to read and the [study plan](docs/study-plan.md) to work through, before starting work on a UI for AI project. 
 
 It is also useful for testing out different dev tooling options for writing accessible UX for AI projects [docs/ai-tools-for-ui-a11y.md](docs/ai-tools-for-ui-a11y.md).
