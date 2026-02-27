@@ -30,15 +30,19 @@ jobs:
 
       - name: Run linter
         run: npm run lint
+        continue-on-error: false
 
       - name: Run unit tests with coverage
         run: npm run test:coverage
+        continue-on-error: false
 
       - name: Validate HTML
         run: npm run validate:html
+        continue-on-error: true
 
       - name: Build application
         run: npm run build
+        continue-on-error: false
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
