@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '../../material.module';
 import { AgentService } from '../../services/agent.service';
 import { ThemeService } from '../../services/theme.service';
-import { AgentState, AgentSubtask, AgentAction } from '../../models/agent.model';
+import { AgentState, AgentAction } from '../../models/agent.model';
 import { Observable, Subscription, interval } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 

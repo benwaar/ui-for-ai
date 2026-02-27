@@ -38,11 +38,11 @@ export interface DmiDecision {
     next_steps?: string;
     required_actions?: string;
   };
-  supporting_factors: Array<{
+  supporting_factors: {
     metric: string;
     value: string | number;
     status: string;
-  }>;
+  }[];
   timestamp: string;
 }
 

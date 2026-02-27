@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { DmiService } from '../../services/dmi.service';
@@ -23,7 +23,7 @@ Chart.register(...registerables);
   templateUrl: './dmi.component.html',
   styleUrls: ['./dmi.component.scss']
 })
-export class DmiComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DmiComponent implements OnInit, OnDestroy {
   private dmiService = inject(DmiService);
   private cdr = inject(ChangeDetectorRef);
   public themeService = inject(ThemeService);
@@ -49,9 +49,6 @@ export class DmiComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadDashboardData();
   }
 
-  ngAfterViewInit(): void {
-    // Charts will be created after data loads
-  }
 
   ngOnDestroy(): void {
     // Destroy all charts to prevent memory leaks
@@ -340,7 +337,7 @@ export class DmiComponent implements OnInit, AfterViewInit, OnDestroy {
    * Execute deployment action (simulation)
    */
   executeAction(action: string): void {
-    const actionMessages: { [key: string]: string } = {
+    const actionMessages: Record<string, string> = {
       deploy: 'Deployment initiated! In a real system, this would trigger your CI/CD pipeline.',
       hold: 'Deployment held. The release has been paused for review.',
       investigate: 'Investigation started. In a real system, this would create a task or alert the team.',

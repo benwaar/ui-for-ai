@@ -46,3 +46,4 @@ frontend/pa11y-reports/*.html
 .env
 .env.local
 *.log
+REVIEW.md
