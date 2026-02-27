@@ -1,76 +1,84 @@
-export interface DmiMetrics {
-  primary_metric: PrimaryMetric;
-  ai_insight: AiInsight;
-  recommendation: Recommendation;
-  supporting_metrics: SupportingMetric[];
+/**
+ * Data models for DMI (Decision Management Intelligence) Dashboard
+ * Thursday: AI-Driven Reporting & Decision Support
+ */
+
+export interface DmiMetric {
+  name: string;
+  key: string;
+  current: number;
+  previous: number;
+  unit: string;
+  direction: 'higher_is_better' | 'lower_is_better';
+  change_percent: number;
+  trend: 'up' | 'down' | 'stable';
+  status: 'healthy' | 'warning' | 'critical';
+}
+
+export interface DmiMetricsResponse {
+  metrics: DmiMetric[];
   timestamp: string;
 }
 
-export interface PrimaryMetric {
-  name: string;
-  current_value: number;
-  previous_value: number;
-  change_percent: number;
-  trend: 'up' | 'down';
-  unit: string;
-}
-
-export interface AiInsight {
-  summary: string;
+export interface DmiDecision {
+  recommendation: 'deploy' | 'hold' | 'investigate' | 'rollback';
   confidence: number;
-  reasoning: string[];
-}
-
-export interface Recommendation {
-  action: string;
-  priority: 'low' | 'medium' | 'high';
-  confidence: number;
-}
-
-export interface SupportingMetric {
-  name: string;
-  value: number;
-  change: number;
-  unit?: string;
-}
-
-export interface TrendData {
-  trend: TrendPoint[];
-  prediction: Prediction;
-}
-
-export interface TrendPoint {
-  date: string;
-  value: number;
-  confidence_interval: {
-    lower: number;
-    upper: number;
-  };
-}
-
-export interface Prediction {
-  next_value: number;
-  confidence: number;
-  note: string;
-}
-
-export interface DecisionSummary {
+  reasoning: string;
+  urgency: 'immediate' | 'within_hours' | 'within_days' | 'next_sprint';
   what_changed: string;
   why: {
-    primary_factors: string[];
-    confidence: number;
-    data_quality: string;
+    critical_issues: string[];
+    warnings: string[];
+    confidence_factors: string[];
   };
-  what_next: {
-    immediate_actions: ImmediateAction[];
-    monitoring_focus: string[];
+  impact: {
+    risk_level: string;
+    expected_outcome: string;
+    rollback_plan?: string;
+    next_steps?: string;
+    required_actions?: string;
   };
+  supporting_factors: Array<{
+    metric: string;
+    value: string | number;
+    status: string;
+  }>;
   timestamp: string;
 }
 
-export interface ImmediateAction {
-  action: string;
-  expected_impact: string;
+export interface DmiTrendPoint {
+  date: string;
+  value: number;
+  is_anomaly: boolean;
+}
+
+export interface DmiTrendResponse {
+  metric: string;
+  unit: string;
+  trend: DmiTrendPoint[];
+  timestamp: string;
+}
+
+export interface DecisionLogEntry {
+  timestamp: string;
+  recommendation: 'deploy' | 'hold' | 'investigate' | 'rollback';
   confidence: number;
-  risk: 'low' | 'medium' | 'high';
+  actual_outcome: 'success' | 'correct' | 'partial' | 'incorrect';
+  outcome_details: string;
+  metrics_snapshot: {
+    test_pass_rate: number;
+    build_time: number;
+    bug_count: number;
+  };
+}
+
+export interface DecisionLogResponse {
+  decisions: DecisionLogEntry[];
+  summary: {
+    total_decisions: number;
+    correct_decisions: number;
+    accuracy: number;
+    avg_confidence: number;
+  };
+  timestamp: string;
 }

@@ -540,140 +540,344 @@ def agent_action_log():
 @app.route('/api/dmi/metrics', methods=['GET'])
 def dmi_metrics():
     """
-    Get current metrics with AI insights
+    Get software project health metrics with status indicators
     """
-    # Mock metrics data
-    current_value = random.uniform(75, 95)
-    previous_value = random.uniform(70, 90)
-    change_percent = ((current_value - previous_value) / previous_value) * 100
+    # Software Project Health Metrics
+    metrics = [
+        {
+            "name": "Build Time",
+            "key": "build_time",
+            "current": round(random.uniform(2.5, 5.5), 2),
+            "previous": round(random.uniform(3.0, 5.0), 2),
+            "unit": "min",
+            "direction": "lower_is_better"
+        },
+        {
+            "name": "Test Pass Rate",
+            "key": "test_pass_rate",
+            "current": round(random.uniform(85, 98), 1),
+            "previous": round(random.uniform(80, 95), 1),
+            "unit": "%",
+            "direction": "higher_is_better"
+        },
+        {
+            "name": "Deployment Frequency",
+            "key": "deployment_frequency",
+            "current": random.randint(15, 35),
+            "previous": random.randint(12, 30),
+            "unit": "per week",
+            "direction": "higher_is_better"
+        },
+        {
+            "name": "Code Coverage",
+            "key": "code_coverage",
+            "current": round(random.uniform(70, 85), 1),
+            "previous": round(random.uniform(65, 80), 1),
+            "unit": "%",
+            "direction": "higher_is_better"
+        },
+        {
+            "name": "Open Bugs",
+            "key": "bug_count",
+            "current": random.randint(5, 25),
+            "previous": random.randint(8, 28),
+            "unit": "count",
+            "direction": "lower_is_better"
+        }
+    ]
 
-    # AI-generated insight
-    if change_percent > 5:
-        insight = "Significant positive trend detected"
-        recommendation = "Maintain current strategy and monitor for sustainability"
-        confidence = 0.87
-    elif change_percent < -5:
-        insight = "Declining performance observed"
-        recommendation = "Investigate root causes and consider intervention"
-        confidence = 0.82
-    else:
-        insight = "Performance is stable"
-        recommendation = "Continue monitoring, no immediate action needed"
-        confidence = 0.75
+    # Calculate change and status for each metric
+    for metric in metrics:
+        current = metric["current"]
+        previous = metric["previous"]
+        change_percent = ((current - previous) / previous) * 100
+        metric["change_percent"] = round(change_percent, 1)
+
+        # Determine trend direction
+        if change_percent > 1:
+            metric["trend"] = "up"
+        elif change_percent < -1:
+            metric["trend"] = "down"
+        else:
+            metric["trend"] = "stable"
+
+        # Determine status based on direction preference and change
+        is_improving = (metric["direction"] == "higher_is_better" and change_percent > 0) or \
+                      (metric["direction"] == "lower_is_better" and change_percent < 0)
+
+        if metric["key"] == "test_pass_rate":
+            if current >= 95:
+                metric["status"] = "healthy"
+            elif current >= 85:
+                metric["status"] = "warning"
+            else:
+                metric["status"] = "critical"
+        elif metric["key"] == "build_time":
+            if current <= 3.5:
+                metric["status"] = "healthy"
+            elif current <= 5.0:
+                metric["status"] = "warning"
+            else:
+                metric["status"] = "critical"
+        elif metric["key"] == "bug_count":
+            if current <= 10:
+                metric["status"] = "healthy"
+            elif current <= 20:
+                metric["status"] = "warning"
+            else:
+                metric["status"] = "critical"
+        else:
+            # Generic status based on improvement
+            if is_improving and abs(change_percent) > 5:
+                metric["status"] = "healthy"
+            elif not is_improving and abs(change_percent) > 10:
+                metric["status"] = "critical"
+            else:
+                metric["status"] = "warning"
 
     return jsonify({
-        "primary_metric": {
-            "name": "User Engagement Score",
-            "current_value": round(current_value, 2),
-            "previous_value": round(previous_value, 2),
-            "change_percent": round(change_percent, 2),
-            "trend": "up" if change_percent > 0 else "down",
-            "unit": "points"
-        },
-        "ai_insight": {
-            "summary": insight,
-            "confidence": confidence,
-            "reasoning": [
-                "Historical pattern analysis shows similar trends",
-                f"Current value is {abs(change_percent):.1f}% {'above' if change_percent > 0 else 'below'} previous period",
-                "External factors appear minimal"
-            ]
-        },
-        "recommendation": {
-            "action": recommendation,
-            "priority": "high" if abs(change_percent) > 10 else "medium" if abs(change_percent) > 5 else "low",
-            "confidence": confidence
-        },
-        "supporting_metrics": [
-            {
-                "name": "Active Users",
-                "value": random.randint(1000, 5000),
-                "change": random.uniform(-10, 15)
-            },
-            {
-                "name": "Session Duration",
-                "value": round(random.uniform(5, 15), 1),
-                "change": random.uniform(-5, 10),
-                "unit": "minutes"
-            },
-            {
-                "name": "Conversion Rate",
-                "value": round(random.uniform(2, 8), 2),
-                "change": random.uniform(-2, 5),
-                "unit": "%"
-            }
-        ],
+        "metrics": metrics,
         "timestamp": datetime.now().isoformat()
     })
 
 @app.route('/api/dmi/trend', methods=['GET'])
 def dmi_trend():
     """
-    Get historical trend data with confidence intervals
+    Get historical trend data for a specific metric
     """
-    days = request.args.get('days', 7, type=int)
+    metric = request.args.get('metric', 'test_pass_rate', type=str)
+    days = request.args.get('days', 14, type=int)
 
+    # Define baseline values and ranges for different metrics
+    metric_configs = {
+        "build_time": {"base": 4.0, "variance": 0.8, "unit": "min"},
+        "test_pass_rate": {"base": 90, "variance": 5, "unit": "%"},
+        "deployment_frequency": {"base": 20, "variance": 8, "unit": "per week"},
+        "code_coverage": {"base": 75, "variance": 5, "unit": "%"},
+        "bug_count": {"base": 15, "variance": 6, "unit": "count"}
+    }
+
+    config = metric_configs.get(metric, metric_configs["test_pass_rate"])
     trend_data = []
-    base_value = 80
+    base_value = config["base"]
+
     for i in range(days):
-        value = base_value + random.uniform(-5, 10)
-        confidence_lower = value - random.uniform(2, 5)
-        confidence_upper = value + random.uniform(2, 5)
+        # Add realistic variance with some trend
+        value = base_value + random.uniform(-config["variance"]/2, config["variance"]/2)
+
+        # Simulate occasional anomalies
+        is_anomaly = random.random() < 0.1  # 10% chance
+        if is_anomaly:
+            value += random.uniform(-config["variance"], config["variance"])
 
         trend_data.append({
-            "date": f"2026-02-{16-days+i:02d}",
+            "date": f"2026-02-{14+i:02d}" if i < 14 else f"2026-02-{i-13:02d}",
             "value": round(value, 2),
-            "confidence_interval": {
-                "lower": round(confidence_lower, 2),
-                "upper": round(confidence_upper, 2)
-            }
+            "is_anomaly": is_anomaly
         })
-        base_value = value
+
+        # Drift base value slightly for realistic trends
+        base_value = value * 0.7 + base_value * 0.3
 
     return jsonify({
+        "metric": metric,
+        "unit": config["unit"],
         "trend": trend_data,
-        "prediction": {
-            "next_value": round(base_value + random.uniform(-3, 8), 2),
-            "confidence": 0.68,
-            "note": "Prediction based on 7-day moving average"
-        }
+        "timestamp": datetime.now().isoformat()
     })
 
 @app.route('/api/dmi/decision', methods=['GET'])
 def dmi_decision():
     """
-    Get decision-focused summary answering: What changed? Why? What next?
+    Get AI-driven deployment decision with reasoning
     """
+    # Simulate metrics for decision making
+    test_pass_rate = random.uniform(85, 98)
+    build_time = random.uniform(2.5, 5.5)
+    bug_count = random.randint(5, 25)
+    code_coverage = random.uniform(70, 85)
+
+    # Decision logic
+    critical_issues = []
+    warnings = []
+    confidence_factors = []
+
+    if test_pass_rate < 90:
+        critical_issues.append(f"Test pass rate at {test_pass_rate:.1f}% (below 90% threshold)")
+    else:
+        confidence_factors.append(f"Strong test pass rate ({test_pass_rate:.1f}%)")
+
+    if bug_count > 15:
+        warnings.append(f"{bug_count} open bugs (above recommended 15)")
+    else:
+        confidence_factors.append(f"Low bug count ({bug_count})")
+
+    if build_time > 5.0:
+        warnings.append(f"Build time elevated at {build_time:.1f} min")
+    elif build_time < 3.5:
+        confidence_factors.append(f"Fast build time ({build_time:.1f} min)")
+
+    if code_coverage < 75:
+        warnings.append(f"Code coverage at {code_coverage:.1f}% (below 75% target)")
+    else:
+        confidence_factors.append(f"Adequate code coverage ({code_coverage:.1f}%)")
+
+    # Determine recommendation
+    if critical_issues:
+        recommendation = "hold"
+        reasoning = "Critical quality metrics below acceptable thresholds"
+        urgency = "immediate"
+        confidence = 0.85
+    elif len(warnings) >= 2:
+        recommendation = "investigate"
+        reasoning = "Multiple warning signals detected - review before deploying"
+        urgency = "within_hours"
+        confidence = 0.78
+    elif len(warnings) == 1:
+        recommendation = "deploy"
+        reasoning = "Overall health is good with minor concerns"
+        urgency = "within_days"
+        confidence = 0.82
+    else:
+        recommendation = "deploy"
+        reasoning = "All metrics within healthy ranges"
+        urgency = "immediate"
+        confidence = 0.92
+
+    # What changed analysis
+    change_summary = []
+    if test_pass_rate > 95:
+        change_summary.append("Test suite stability improved")
+    if bug_count < 10:
+        change_summary.append("Bug resolution rate increased")
+    if build_time < 4.0:
+        change_summary.append("Build performance optimized")
+
+    if not change_summary:
+        change_summary.append("Metrics remain stable with no significant changes")
+
+    # Impact assessment
+    if recommendation == "deploy":
+        impact = {
+            "risk_level": "low" if confidence > 0.85 else "medium",
+            "expected_outcome": "Smooth deployment with minimal user impact",
+            "rollback_plan": "Automated rollback available within 5 minutes"
+        }
+    elif recommendation == "investigate":
+        impact = {
+            "risk_level": "medium",
+            "expected_outcome": "Investigation will identify root causes within 2-4 hours",
+            "next_steps": "Review logs, run diagnostics, consult with team leads"
+        }
+    else:  # hold
+        impact = {
+            "risk_level": "high",
+            "expected_outcome": "Deployment blocked pending quality improvements",
+            "required_actions": "Address critical issues before reconsidering deployment"
+        }
+
     return jsonify({
-        "what_changed": "User engagement increased by 12% over the past week",
+        "recommendation": recommendation,  # deploy, hold, investigate, rollback
+        "confidence": confidence,
+        "reasoning": reasoning,
+        "urgency": urgency,  # immediate, within_hours, within_days, next_sprint
+        "what_changed": "; ".join(change_summary) if change_summary else "No significant changes",
         "why": {
-            "primary_factors": [
-                "New onboarding flow reduced drop-off by 8%",
-                "Mobile app performance improvements",
-                "Targeted email campaign showed 15% higher open rate"
-            ],
-            "confidence": 0.79,
-            "data_quality": "high"
+            "critical_issues": critical_issues,
+            "warnings": warnings,
+            "confidence_factors": confidence_factors
         },
-        "what_next": {
-            "immediate_actions": [
-                {
-                    "action": "Scale successful email campaign to broader audience",
-                    "expected_impact": "5-10% additional growth",
-                    "confidence": 0.72,
-                    "risk": "low"
-                },
-                {
-                    "action": "A/B test onboarding variations",
-                    "expected_impact": "Further 3-5% improvement possible",
-                    "confidence": 0.65,
-                    "risk": "low"
-                }
-            ],
-            "monitoring_focus": [
-                "Watch for plateau in engagement after 2 weeks",
-                "Monitor mobile vs desktop split for anomalies"
-            ]
+        "impact": impact,
+        "supporting_factors": [
+            {"metric": "Test Pass Rate", "value": f"{test_pass_rate:.1f}%", "status": "healthy" if test_pass_rate >= 90 else "warning"},
+            {"metric": "Open Bugs", "value": bug_count, "status": "healthy" if bug_count <= 15 else "warning"},
+            {"metric": "Build Time", "value": f"{build_time:.1f} min", "status": "healthy" if build_time <= 5.0 else "warning"},
+            {"metric": "Code Coverage", "value": f"{code_coverage:.1f}%", "status": "healthy" if code_coverage >= 75 else "warning"}
+        ],
+        "timestamp": datetime.now().isoformat()
+    })
+
+@app.route('/api/dmi/decision-log', methods=['GET'])
+def dmi_decision_log():
+    """
+    Get historical decision log with outcomes
+    """
+    # Mock historical decisions
+    decisions = [
+        {
+            "timestamp": "2026-02-26T14:30:00",
+            "recommendation": "deploy",
+            "confidence": 0.89,
+            "actual_outcome": "success",
+            "outcome_details": "Deployment completed successfully. No incidents reported.",
+            "metrics_snapshot": {
+                "test_pass_rate": 94.5,
+                "build_time": 3.2,
+                "bug_count": 8
+            }
+        },
+        {
+            "timestamp": "2026-02-25T09:15:00",
+            "recommendation": "investigate",
+            "confidence": 0.76,
+            "actual_outcome": "correct",
+            "outcome_details": "Investigation revealed memory leak. Fixed before deploying.",
+            "metrics_snapshot": {
+                "test_pass_rate": 89.2,
+                "build_time": 5.1,
+                "bug_count": 14
+            }
+        },
+        {
+            "timestamp": "2026-02-23T16:45:00",
+            "recommendation": "deploy",
+            "confidence": 0.92,
+            "actual_outcome": "success",
+            "outcome_details": "Smooth deployment. Performance metrics improved.",
+            "metrics_snapshot": {
+                "test_pass_rate": 96.8,
+                "build_time": 2.9,
+                "bug_count": 6
+            }
+        },
+        {
+            "timestamp": "2026-02-22T11:20:00",
+            "recommendation": "hold",
+            "confidence": 0.85,
+            "actual_outcome": "correct",
+            "outcome_details": "Critical test failures prevented bad deployment.",
+            "metrics_snapshot": {
+                "test_pass_rate": 82.1,
+                "build_time": 4.5,
+                "bug_count": 22
+            }
+        },
+        {
+            "timestamp": "2026-02-20T13:00:00",
+            "recommendation": "deploy",
+            "confidence": 0.87,
+            "actual_outcome": "partial",
+            "outcome_details": "Deployment succeeded but minor UI issues found post-release.",
+            "metrics_snapshot": {
+                "test_pass_rate": 93.4,
+                "build_time": 3.8,
+                "bug_count": 11
+            }
+        }
+    ]
+
+    # Calculate decision accuracy
+    total = len(decisions)
+    correct = sum(1 for d in decisions if d["actual_outcome"] in ["success", "correct"])
+    accuracy = (correct / total) * 100 if total > 0 else 0
+
+    return jsonify({
+        "decisions": decisions,
+        "summary": {
+            "total_decisions": total,
+            "correct_decisions": correct,
+            "accuracy": round(accuracy, 1),
+            "avg_confidence": round(sum(d["confidence"] for d in decisions) / total, 2) if total > 0 else 0
         },
         "timestamp": datetime.now().isoformat()
     })

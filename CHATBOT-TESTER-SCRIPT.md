@@ -663,11 +663,361 @@ After clicking Resume:
 
 ---
 
+---
+
+# Thursday - DMI & AI-Driven Reporting
+
+## Overview
+This test script demonstrates the key concepts from the Thursday exercise:
+- Decision-first metric hierarchy
+- AI insights vs raw metrics
+- Trend explanations with confidence
+- "What changed?", "Why?", "What next?" framework
+- Decision support, not passive monitoring
+- Historical decision tracking and accuracy
+
+---
+
+## Test Scenarios
+
+### 1. AI Recommendation Card - Deploy Decision
+**Goal:** Experience a "Deploy" recommendation with high confidence
+
+**Steps:**
+1. Navigate to "Thursday: DMI" in the navigation bar
+2. Observe the top recommendation card
+3. Note the recommendation type (Deploy/Hold/Investigate/Rollback)
+4. Check the confidence level and urgency indicator
+
+**Expected Results:**
+- Prominent recommendation card at the top of the dashboard
+- Large, bold decision type (e.g., "DEPLOY")
+- Confidence chip with color coding:
+  - High Confidence (85%+) = Blue
+  - Medium Confidence (70-85%) = Purple
+  - Low Confidence (<70%) = Orange
+- Urgency chip (immediate/within_hours/within_days/next_sprint)
+- Reasoning text explaining the decision
+- Impact assessment section showing:
+  - Risk level (low/medium/high)
+  - Expected outcome
+  - Rollback plan (for deploy recommendations)
+- Card has colored left border matching recommendation type:
+  - Deploy = Green
+  - Hold = Orange
+  - Investigate = Yellow
+  - Rollback = Red
+
+---
+
+### 2. Metrics Grid - Software Health Overview
+**Goal:** See all 5 project health metrics at a glance
+
+**Steps:**
+1. Scroll to the metrics grid below the recommendation card
+2. Observe each metric card:
+   - Build Time
+   - Test Pass Rate
+   - Deployment Frequency
+   - Code Coverage
+   - Open Bugs
+
+**Expected Results:**
+- 5 metric cards in responsive grid layout
+- Each card shows:
+  - Metric name and current value with unit
+  - Status chip (Healthy/Warning/Critical) with color:
+    - Healthy = Green
+    - Warning = Orange
+    - Critical = Red
+  - Trend indicator with icon:
+    - ↑ Trending Up (green or red depending on metric)
+    - ↓ Trending Down (green or red depending on metric)
+    - → Stable (gray)
+  - Percentage change from previous period
+  - Previous value for comparison
+- Colored left border matching status
+- Mobile-responsive: stacks into single column on narrow screens
+
+---
+
+### 3. Trend Charts - 14-Day History
+**Goal:** Visualize metric trends over time with anomaly detection
+
+**Steps:**
+1. Scroll to the "Trend Analysis (14 Days)" card
+2. Observe the Chart.js line charts for each metric
+3. Hover over data points to see tooltips
+4. Look for orange/larger points indicating anomalies
+
+**Expected Results:**
+- 5 interactive line charts (one per metric)
+- Chart features:
+  - Smooth line with gentle curve (tension: 0.4)
+  - Filled area under the line with transparent color
+  - X-axis: Dates (M/D format)
+  - Y-axis: Metric values
+  - Normal points: Small dots in metric color
+  - Anomaly points: Larger orange dots
+- Hover tooltips show:
+  - Date
+  - Exact value with unit
+  - "(Anomaly)" label if applicable
+- Charts are theme-aware (colors adapt to light/dark theme)
+- Responsive sizing
+
+---
+
+### 4. Decision Explanation - What Changed? Why?
+**Goal:** Understand the reasoning behind the AI recommendation
+
+**Steps:**
+1. Scroll to the "Decision Explanation" card
+2. Click to expand each panel:
+   - "What Changed?"
+   - "Why?"
+   - "Supporting Metrics"
+3. Read through the explanations
+
+**Expected Results:**
+- **What Changed?** panel shows:
+  - Summary of recent changes across metrics
+  - Plain language description
+
+- **Why?** panel shows three sections:
+  - 🔴 Critical Issues (if any) - Red error icon
+  - ⚠️ Warnings (if any) - Orange warning icon
+  - ✅ Confidence Factors - Blue check icon
+  - Each section has bulleted list of factors
+
+- **Supporting Metrics** panel shows:
+  - List of metrics that influenced the decision
+  - Each with current value and status indicator (colored dot)
+  - Status colors: Healthy (green), Warning (orange), Critical (red)
+
+---
+
+### 5. Decision Log - Historical Accuracy
+**Goal:** Review past decisions and their outcomes
+
+**Steps:**
+1. Scroll to the "Decision Log" card at the bottom
+2. Observe the summary showing accuracy percentage
+3. Review the visible decision entries (last 3)
+4. Click "Show All" to expand full history
+5. Note the outcome indicators for each decision
+
+**Expected Results:**
+- Card header shows:
+  - Title: "Decision Log"
+  - Subtitle: "Accuracy: X% (Y/Z correct)"
+- Each decision entry shows:
+  - Outcome icon (left):
+    - ✅ Success (green)
+    - ✓ Correct (green)
+    - ⚠️ Partial (orange)
+    - ✗ Incorrect (red)
+  - Decision type (DEPLOY/HOLD/INVESTIGATE)
+  - Confidence chip with percentage
+  - Outcome description
+  - Timestamp
+  - Metrics snapshot (Tests, Build, Bugs)
+- "Show All" button to expand/collapse
+- First 3 entries visible by default
+
+---
+
+### 6. Theme Toggle - Dark Mode Support
+**Goal:** Verify DMI dashboard works in both themes
+
+**Steps:**
+1. Click the theme toggle button (top-right, sun/moon icon)
+2. Observe the dashboard transform to dark theme
+3. Note how all components adapt
+4. Check that charts update their colors
+5. Toggle back to light theme
+
+**Expected Results:**
+- **Dark Theme:**
+  - All cards: Dark gray background (#2c2c2c)
+  - Text: Light gray (#e0e0e0)
+  - Charts: Dark background with light text
+  - Grid lines: Lighter color
+  - All colors remain accessible and readable
+- **Light Theme:**
+  - White/light backgrounds
+  - Dark text
+  - Charts: Light background with dark text
+- Smooth transition between themes
+- No layout shifts or broken elements
+
+---
+
+### 7. Refresh Dashboard Data
+**Goal:** Reload metrics with new randomized data
+
+**Steps:**
+1. Note the current recommendation (e.g., "Deploy")
+2. Click the refresh button (top-right, circular arrow icon)
+3. Observe the dashboard reload with new data
+4. Check that metrics, charts, and recommendations update
+
+**Expected Results:**
+- All data refreshes:
+  - New recommendation (may change from Deploy → Hold, etc.)
+  - New metric values and trends
+  - New confidence levels
+  - Charts rebuild with new 14-day trends
+- Loading spinner appears briefly
+- No console errors
+- Decision log remains unchanged (historical data)
+
+---
+
+### 8. Responsive Layout - Mobile View
+**Goal:** Test mobile responsiveness
+
+**Steps:**
+1. Open browser DevTools (F12)
+2. Toggle device toolbar (Ctrl+Shift+M / Cmd+Shift+M)
+3. Select mobile device (e.g., iPhone 12)
+4. Scroll through the dashboard
+
+**Expected Results:**
+- Metrics grid: Stacks into single column
+- Charts: Remain readable, stack vertically
+- Recommendation card: Full width, readable text
+- Navigation: Collapses appropriately
+- All buttons remain accessible
+- No horizontal scrolling
+- Text remains legible
+
+---
+
+### 9. Decision Support Workflow
+**Goal:** Experience the full decision-making flow
+
+**Scenario:** You're a team lead deciding whether to deploy to production.
+
+**Steps:**
+1. Start at the recommendation card:
+   - Read the AI recommendation
+   - Note the confidence level
+   - Review the impact assessment
+2. Scan the metrics grid:
+   - Identify any critical/warning metrics
+   - Check if tests are passing
+   - Verify bug count is acceptable
+3. Review the trend charts:
+   - Look for degrading performance
+   - Spot any anomalies
+4. Read the explanation:
+   - Understand what changed
+   - Review the reasoning
+5. Check the decision log:
+   - See how accurate past recommendations were
+6. Make your decision based on the data
+
+**Expected Results:**
+- You can answer:
+  - **What changed?** ✓ (From "What Changed?" panel)
+  - **Why?** ✓ (From "Why?" panel with critical issues/warnings)
+  - **What should I do next?** ✓ (From recommendation card)
+- Decision feels informed by:
+  - Current metrics
+  - Historical trends
+  - AI reasoning
+  - Past accuracy
+- You trust (or question) the recommendation based on confidence level and supporting evidence
+
+---
+
+### 10. Edge Case - Critical State
+**Goal:** See how dashboard handles critical metrics
+
+**Steps:**
+1. Refresh until you see critical status indicators (red)
+2. Observe how the recommendation changes
+3. Note the warnings/critical issues in the explanation
+
+**Expected Results:**
+- If critical metrics present:
+  - Recommendation likely "Hold" or "Investigate"
+  - Lower confidence level
+  - Impact section shows higher risk level
+  - "Why?" panel lists critical issues
+  - Required actions specified
+- Visual hierarchy draws attention to problems:
+  - Red borders and chips
+  - Critical issues listed first
+  - Degraded confidence signals
+
+---
+
+### 11. Anomaly Detection in Charts
+**Goal:** Identify and understand anomalies
+
+**Steps:**
+1. Scan the trend charts for orange/larger data points
+2. Hover over an anomaly point
+3. Compare anomaly value to surrounding values
+
+**Expected Results:**
+- Anomalies visually distinct:
+  - Larger point radius (5px vs 3px)
+  - Orange color (#ff9800) instead of metric color
+- Tooltip shows "(Anomaly)" label
+- Anomalies represent ~10% of data points (realistic)
+- Anomalies may correspond to warnings in decision explanation
+
+---
+
+### 12. Multi-Signal Decision - Mixed Metrics
+**Goal:** See how DMI handles conflicting signals
+
+**Steps:**
+1. Refresh until you get mixed metric statuses:
+   - Some healthy (green)
+   - Some warning (orange)
+   - Some critical (red)
+2. Observe how the AI recommendation balances these
+
+**Expected Results:**
+- Recommendation reflects overall health:
+  - All healthy → "Deploy" (high confidence)
+  - Mixed signals → "Investigate" (medium confidence)
+  - Multiple critical → "Hold" (high confidence)
+- "Why?" panel shows both:
+  - Confidence factors (what's going well)
+  - Warnings/issues (what's concerning)
+- Confidence level is nuanced (not just 0/100)
+- Impact assessment acknowledges trade-offs
+
+---
+
+## Design Principles Validated
+
+✅ **Decision-First Hierarchy** - Recommendation prominently placed, metrics support it
+✅ **Actionable Insights** - Clear "What changed?", "Why?", "What next?"
+✅ **Confidence Transparency** - AI uncertainty visible and color-coded
+✅ **Historical Context** - Decision log shows past accuracy
+✅ **Trend Awareness** - 14-day charts reveal patterns over time
+✅ **Anomaly Detection** - Visual flagging of unusual data points
+✅ **Multi-Signal Integration** - Balances competing metrics intelligently
+✅ **Risk Communication** - Impact assessment with risk levels
+✅ **Progressive Disclosure** - Expandable panels for detailed explanation
+✅ **Theme Adaptability** - Works in light and dark modes
+✅ **Responsive Design** - Mobile-friendly layout
+✅ **Real-Time Updates** - Refresh button for latest data
+
+---
+
 ## Notes for Testing
 
 - The chatbot uses simulated responses for demonstration
 - Some failure states trigger based on specific keywords or message count
 - All features are functional in the UI even without a live backend
 - This is a low-fidelity prototype focusing on UX patterns, not production-ready code
-- **New:** Agent backend simulates realistic progression with timed updates
-- Agent subtasks and action logs populate automatically to demonstrate real-world behavior
+- **Tuesday:** Chatbot demonstrates conversational AI with confidence signaling
+- **Wednesday:** Agent backend simulates realistic progression with timed updates
+- **Thursday:** DMI dashboard uses randomized metrics to demonstrate decision support patterns

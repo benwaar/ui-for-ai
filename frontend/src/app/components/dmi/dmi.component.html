@@ -1,0 +1,242 @@
+<div class="dmi-container">
+  <!-- Header -->
+  <div class="dmi-header">
+    <h1>
+      <mat-icon aria-hidden="true">analytics</mat-icon>
+      Decision Management Intelligence
+    </h1>
+    <div class="header-actions">
+      <button
+        mat-icon-button
+        (click)="refreshDashboard()"
+        [disabled]="loading"
+        aria-label="Refresh dashboard"
+        matTooltip="Refresh dashboard data">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="toggleTheme()"
+        aria-label="Toggle theme"
+        matTooltip="Toggle theme">
+        <mat-icon>{{ (theme$ | async) === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!loading && !error" class="dmi-content">
+
+    <!-- AI Recommendation Card (Most Prominent) -->
+    <mat-card *ngIf="decision" class="recommendation-card" [class]="'recommendation-' + decision.recommendation">
+      <mat-card-header>
+        <mat-icon mat-card-avatar [class]="'icon-' + decision.recommendation">
+          {{ getRecommendationIcon(decision.recommendation) }}
+        </mat-icon>
+        <mat-card-title>AI Recommendation</mat-card-title>
+        <mat-card-subtitle>
+          <mat-chip [class]="'confidence-' + getConfidenceLevel(decision.confidence).toLowerCase()">
+            {{ getConfidenceLevel(decision.confidence) }} Confidence ({{ (decision.confidence * 100).toFixed(0) }}%)
+          </mat-chip>
+          <mat-chip class="urgency-chip">{{ decision.urgency.replace('_', ' ') }}</mat-chip>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="recommendation-action">
+          <h2>{{ decision.recommendation.toUpperCase() }}</h2>
+          <p class="reasoning">{{ decision.reasoning }}</p>
+        </div>
+
+        <!-- Impact Assessment -->
+        <div class="impact-section">
+          <h3><mat-icon>info</mat-icon> Impact Assessment</h3>
+          <div class="impact-details">
+            <div class="impact-item">
+              <strong>Risk Level:</strong>
+              <mat-chip [class]="'risk-' + decision.impact.risk_level">{{ decision.impact.risk_level }}</mat-chip>
+            </div>
+            <div class="impact-item">
+              <strong>Expected Outcome:</strong> {{ decision.impact.expected_outcome }}
+            </div>
+            <div *ngIf="decision.impact.rollback_plan" class="impact-item">
+              <strong>Rollback Plan:</strong> {{ decision.impact.rollback_plan }}
+            </div>
+            <div *ngIf="decision.impact.next_steps" class="impact-item">
+              <strong>Next Steps:</strong> {{ decision.impact.next_steps }}
+            </div>
+            <div *ngIf="decision.impact.required_actions" class="impact-item">
+              <strong>Required Actions:</strong> {{ decision.impact.required_actions }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button
+            mat-raised-button
+            [color]="decision.recommendation === 'deploy' ? 'primary' : 'accent'"
+            (click)="executeAction(decision.recommendation)"
+            [disabled]="loading">
+            <mat-icon>{{ getRecommendationIcon(decision.recommendation) }}</mat-icon>
+            Execute: {{ decision.recommendation.toUpperCase() }}
+          </button>
+          <button
+            mat-stroked-button
+            (click)="refreshDashboard()"
+            [disabled]="loading">
+            <mat-icon>refresh</mat-icon>
+            Refresh Data
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Metrics Grid -->
+    <div class="metrics-grid">
+      <mat-card *ngFor="let metric of metrics" class="metric-card" [class]="'status-' + metric.status">
+        <mat-card-header>
+          <mat-card-title>{{ metric.name }}</mat-card-title>
+          <mat-card-subtitle>
+            <mat-chip [class]="'status-' + metric.status">{{ metric.status }}</mat-chip>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="metric-value">
+            <span class="current-value">{{ metric.current }} <small>{{ metric.unit }}</small></span>
+            <div class="trend-indicator" [class]="'trend-' + metric.trend">
+              <mat-icon>{{ getTrendIcon(metric.trend) }}</mat-icon>
+              <span class="change-percent">{{ metric.change_percent > 0 ? '+' : '' }}{{ metric.change_percent }}%</span>
+            </div>
+          </div>
+          <div class="previous-value">
+            Previous: {{ metric.previous }} {{ metric.unit }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Trend Charts -->
+    <mat-card class="trends-card">
+      <mat-card-header>
+        <mat-card-title><mat-icon>show_chart</mat-icon> Trend Analysis (14 Days)</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="charts-grid">
+          <div *ngFor="let metric of metrics" class="chart-container">
+            <h4>{{ metric.name }}</h4>
+            <canvas [id]="'chart-' + metric.key"></canvas>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Explanation Section -->
+    <mat-card *ngIf="decision" class="explanation-card">
+      <mat-card-header>
+        <mat-card-title><mat-icon>lightbulb</mat-icon> Decision Explanation</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-expansion-panel expanded>
+          <mat-expansion-panel-header>
+            <mat-panel-title>What Changed?</mat-panel-title>
+          </mat-expansion-panel-header>
+          <p>{{ decision.what_changed }}</p>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Why?</mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="why-section">
+            <div *ngIf="decision.why.critical_issues.length > 0" class="issues-section">
+              <h4><mat-icon color="warn">error</mat-icon> Critical Issues</h4>
+              <ul>
+                <li *ngFor="let issue of decision.why.critical_issues">{{ issue }}</li>
+              </ul>
+            </div>
+            <div *ngIf="decision.why.warnings.length > 0" class="warnings-section">
+              <h4><mat-icon style="color: #ff9800;">warning</mat-icon> Warnings</h4>
+              <ul>
+                <li *ngFor="let warning of decision.why.warnings">{{ warning }}</li>
+              </ul>
+            </div>
+            <div *ngIf="decision.why.confidence_factors.length > 0" class="confidence-section">
+              <h4><mat-icon color="primary">check_circle</mat-icon> Confidence Factors</h4>
+              <ul>
+                <li *ngFor="let factor of decision.why.confidence_factors">{{ factor }}</li>
+              </ul>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Supporting Metrics</mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-list>
+            <mat-list-item *ngFor="let factor of decision.supporting_factors">
+              <mat-icon matListItemIcon [class]="'status-icon-' + factor.status">circle</mat-icon>
+              <span matListItemTitle>{{ factor.metric }}</span>
+              <span matListItemLine>{{ factor.value }}</span>
+            </mat-list-item>
+          </mat-list>
+        </mat-expansion-panel>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Decision Log -->
+    <mat-card class="decision-log-card">
+      <mat-card-header>
+        <mat-card-title><mat-icon>history</mat-icon> Decision Log</mat-card-title>
+        <mat-card-subtitle *ngIf="decisionLogSummary">
+          Accuracy: {{ decisionLogSummary.accuracy }}%
+          ({{ decisionLogSummary.correct_decisions }}/{{ decisionLogSummary.total_decisions }} correct)
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item *ngFor="let entry of visibleDecisions" class="decision-log-entry">
+            <mat-icon matListItemIcon [class]="'outcome-' + entry.actual_outcome">
+              {{ getOutcomeIcon(entry.actual_outcome) }}
+            </mat-icon>
+            <div matListItemTitle>
+              <strong>{{ entry.recommendation.toUpperCase() }}</strong>
+              <mat-chip size="small" [class]="'confidence-chip-' + getConfidenceLevel(entry.confidence).toLowerCase()">
+                {{ (entry.confidence * 100).toFixed(0) }}%
+              </mat-chip>
+            </div>
+            <div matListItemLine>{{ entry.outcome_details }}</div>
+            <div matListItemLine class="timestamp">{{ formatTimestamp(entry.timestamp) | date:'short' }}</div>
+            <div matListItemMeta class="metrics-snapshot">
+              <small>
+                Tests: {{ entry.metrics_snapshot.test_pass_rate }}% |
+                Build: {{ entry.metrics_snapshot.build_time }}m |
+                Bugs: {{ entry.metrics_snapshot.bug_count }}
+              </small>
+            </div>
+          </mat-list-item>
+        </mat-list>
+
+        <div *ngIf="decisionLog.length > 3" class="show-more-container">
+          <button mat-button (click)="toggleShowAllDecisions()">
+            <mat-icon>{{ showAllDecisions ? 'expand_less' : 'expand_more' }}</mat-icon>
+            {{ showAllDecisions ? 'Show Less' : 'Show All (' + decisionLog.length + ')' }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>
