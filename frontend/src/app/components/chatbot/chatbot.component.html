@@ -119,7 +119,11 @@
               Did you mean:
             </h4>
             <mat-chip-set>
-              <mat-chip *ngFor="let alt of message.data?.alternative_interpretations">
+              <mat-chip *ngFor="let alt of message.data?.alternative_interpretations"
+                        (click)="applyAlternative(alt)"
+                        [attr.aria-label]="'Use suggestion: ' + alt"
+                        role="button"
+                        tabindex="0">
                 {{ alt }}
               </mat-chip>
             </mat-chip-set>
@@ -176,7 +180,9 @@
                 <div matListItemMeta class="source-relevance">
                   <mat-progress-bar mode="determinate"
                                     [value]="source.relevance * 100"
-                                    [color]="'primary'">
+                                    [color]="'primary'"
+                                    [attr.aria-label]="'Relevance: ' + (source.relevance * 100).toFixed(0) + '%'"
+                                    [attr.aria-valuenow]="source.relevance * 100">
                   </mat-progress-bar>
                   <span class="relevance-label">{{ (source.relevance * 100).toFixed(0) }}%</span>
                 </div>
@@ -213,7 +219,12 @@
               I'm not certain. Did you mean:
             </h4>
             <mat-chip-set>
-              <mat-chip *ngFor="let alt of message.data.alternative_interpretations" color="warn">
+              <mat-chip *ngFor="let alt of message.data.alternative_interpretations"
+                        color="warn"
+                        (click)="applyAlternative(alt)"
+                        [attr.aria-label]="'Use suggestion: ' + alt"
+                        role="button"
+                        tabindex="0">
                 {{ alt }}
               </mat-chip>
             </mat-chip-set>
@@ -237,6 +248,7 @@
               <input matInput
                      [(ngModel)]="correctionText"
                      placeholder="I meant..."
+                     aria-label="Correction text input"
                      (keyup.enter)="submitCorrection(message, i)">
               <mat-icon matPrefix>edit_note</mat-icon>
             </mat-form-field>

@@ -357,6 +357,12 @@ export class ChatbotComponent {
     });
   }
 
+  applyAlternative(alternative: string): void {
+    // Apply the suggested alternative interpretation as user input
+    this.userInput = alternative;
+    this.sendMessage();
+  }
+
   loadHistory(): void {
     this.chatbotService.getHistory().subscribe({
       next: () => {
