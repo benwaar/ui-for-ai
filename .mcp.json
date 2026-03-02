@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/DBenoy/src/_research/_benwaar/ui-for-ai"],
+      "description": "Provides file system access to this project"
+    },
+    "a11y": {
+      "command": "npx",
+      "args": ["-y", "a11y-mcp"],
+      "description": "Accessibility testing with axe-core - audits public URLs for WCAG violations"
+    }
+  }
+}

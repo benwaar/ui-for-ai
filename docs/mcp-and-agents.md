@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [MCP Support Across Claude Products](#mcp-support-across-claude-products)
 - [MCPs (Model Context Protocols)](#mcps-model-context-protocols)
   - [Where MCPs Live](#where-mcps-live)
   - [MCP Configuration](#mcp-configuration)
@@ -24,6 +25,17 @@
 
 This document explains the distinction between MCPs and Agents in the context of Claude Code and AI tooling.
 
+## MCP Support Across Claude Products
+
+| Product | MCP Support | Configuration |
+|---------|-------------|---------------|
+| **Claude Desktop** | ✅ Full | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)<br>`~/.config/Claude/claude_desktop_config.json` (Linux) |
+| **Claude Code (CLI)** | ✅ Full (via plugins) | Project `.mcp.json` or global settings |
+| **Claude Code (VSCode)** | ✅ Full (via plugins) | Project `.mcp.json` or global settings |
+| **Claude.ai** | ❌ No | Not supported |
+
+**Important:** While Claude Desktop uses `claude_desktop_config.json` with direct `mcpServers` configuration, Claude Code uses project `.mcp.json` files or plugins for MCP integration. Both approaches provide the same MCP functionality - the difference is only in how they're configured.
+
 ## MCPs (Model Context Protocols)
 
 **MCPs are scripts** that provide external functionality to AI models through standardized interfaces.
@@ -35,16 +47,19 @@ This document explains the distinction between MCPs and Agents in the context of
 
 ### Where MCPs Live
 
-MCPs are configured in Claude Code settings and run as independent server processes:
+MCPs are configured differently depending on which Claude product you're using:
 
-**Global Configuration:**
+**Claude Desktop Configuration:**
 ```
-~/.claude/settings.json
+~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
+~/.config/Claude/claude_desktop_config.json (Linux)
 ```
 
-**Project-Specific Configuration:**
+**Claude Code Configuration:**
 ```
-/path/to/project/.claude/settings.json
+/path/to/project/.mcp.json                    # Project-specific (recommended)
+/path/to/project/.claude/settings.json        # Via plugins (not direct mcpServers)
+~/.claude/settings.json                       # Global via plugins
 ```
 
 **MCP Server Code:**
@@ -56,7 +71,7 @@ MCPs can live anywhere as standalone projects:
 
 ### MCP Configuration
 
-MCPs are configured in `settings.json` under the `mcpServers` key:
+**Claude Desktop Configuration** (`claude_desktop_config.json`):
 
 ```json
 {
@@ -81,6 +96,27 @@ MCPs are configured in `settings.json` under the `mcpServers` key:
   }
 }
 ```
+
+**Claude Code Configuration** (project `.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/project"],
+      "description": "Provides file system access to this project"
+    },
+    "a11y": {
+      "command": "npx",
+      "args": ["-y", "@priyankark/a11y-mcp"],
+      "description": "Accessibility testing with axe-core"
+    }
+  }
+}
+```
+
+**Note:** Claude Code will prompt you to approve MCP servers defined in `.mcp.json` the first time they're encountered. You can pre-approve them in settings using `enableAllProjectMcpServers: true` or `enabledMcpjsonServers: ["filesystem", "a11y"]`.
 
 ### MCP File Structure
 
@@ -294,7 +330,20 @@ Result
 
 ### MCP Example: Filesystem Server
 
-**Location:** `~/.claude/settings.json`
+**For Claude Desktop** - Location: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/username/projects"]
+    }
+  }
+}
+```
+
+**For Claude Code** - Location: `/path/to/project/.mcp.json`
 
 ```json
 {
@@ -310,7 +359,7 @@ Result
 **What it does:**
 - Runs as a Node.js process
 - Provides tools: `read_file`, `write_file`, `list_directory`, etc.
-- Claude Code calls these tools during conversations
+- Claude calls these tools during conversations
 - Can access files outside project directory (if configured)
 
 ### Agent Example: Accessibility Lead
