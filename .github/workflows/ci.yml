@@ -44,6 +44,14 @@ jobs:
         run: npm run build
         continue-on-error: false
 
+      - name: Run accessibility tests
+        run: |
+          npm start &
+          npx wait-on http://localhost:4200 --timeout 60000
+          npm run test:a11y
+          kill %1
+        continue-on-error: false
+
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
         if: always()

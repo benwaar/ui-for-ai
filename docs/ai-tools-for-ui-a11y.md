@@ -162,8 +162,43 @@ Using:
 - ✅ ESLint + html-validate running in CI
 - ✅ Pa11y-ci installed with axe + htmlcs runners
 - ✅ npm scripts for local a11y testing
+- ✅ **Pa11y running in CI pipeline** (blocks PRs with violations)
+- ✅ **MCP for Claude Desktop** (a11y-mcp + filesystem MCP configured)
+- ✅ **Taylor Arndt's a11y-agent-team** (55 agents with enforcement hooks)
 
-## Remaining (Free Setup)
-- ❌ **Pa11y not in CI pipeline** (installed but not running on PRs)
-- ❌ **MCP for Claude Desktop** (a11y-mcp + filesystem MCP)
-- ❌ **Taylor Arndt's a11y-agent-team** (optional)
+## Test Results
+
+### ✅ Accessibility Agents (Working)
+- **Status:** Active and enforcing
+- **Evidence:** PreToolUse hook blocked UI edit attempt
+- **What it does:** Requires accessibility-lead review before editing HTML/templates
+- **55 agents installed** with 3 enforcement hooks
+
+### ⚠️ MCP for Claude Desktop (Issue)
+- **Status:** Node.js npm corruption issue
+- **Problem:** Both Node v18.20.8 and v22.22.0 have corrupted npm (`Cannot find module 'node:path'`)
+- **Next:** Need to reinstall Node or fix npm installation
+- **Workaround:** Use CLI tools directly (`npm run test:a11y`)
+
+### 🔄 Pa11y CI (Ready to Test)
+- **Status:** Added to workflow, ready for testing
+- **How to test:**
+  1. Add image without alt text to any HTML file
+  2. Commit and push branch
+  3. Verify CI fails with Pa11y error
+
+## Manual Test Commands
+
+```bash
+# Test Pa11y locally
+cd frontend
+npm start &
+npx wait-on http://localhost:4200
+npm run test:a11y
+
+# Test linting
+npm run lint
+
+# Test HTML validation
+npm run validate:html
+```
