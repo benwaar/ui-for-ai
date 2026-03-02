@@ -13,6 +13,10 @@
 
 ---
 
+**📖 For a comprehensive guide on MCPs vs Agents**, see [mcp-and-agents.md](mcp-and-agents.md) - detailed explanations of where they live, how they're configured, file structures, and when to use each.
+
+---
+
 ## What is MCP?
 
 **MCP (Model Context Protocol)** is a standard that lets AI assistants interact with external tools and data sources.

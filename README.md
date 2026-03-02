@@ -38,6 +38,12 @@ See [docs/meta-learning-observations.md](docs/meta-learning-observations.md). Ob
 
 ---
 
+## AI Development Tooling
+
+See [docs/mcp-and-agents.md](docs/mcp-and-agents.md). Comprehensive guide explaining the distinction between MCPs (Model Context Protocols) and Agents in Claude Code - where they live, how they're configured, and when to use each. Essential reading for understanding how AI development tools are structured and how to extend Claude with custom functionality.
+
+---
+
 ## Additional Docs & Scripts
 
 - Quickstart guide: [QUICKSTART.md](QUICKSTART.md)
