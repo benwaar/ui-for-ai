@@ -184,19 +184,23 @@
 }
 
 // === Confidence Chips ===
+// Use theme-aware CSS variables for proper contrast in both light and dark modes
 mat-chip.confidence-high {
-  background-color: #1976d2 !important;
-  color: white !important;
+  background-color: var(--confidence-high-bg) !important;
+  color: var(--confidence-high-color) !important;
+  border: 2px solid var(--confidence-high-border) !important;
 }
 
 mat-chip.confidence-medium {
-  background-color: #7b1fa2 !important;
-  color: white !important;
+  background-color: var(--confidence-medium-bg) !important;
+  color: var(--confidence-medium-color) !important;
+  border: 2px dashed var(--confidence-medium-border) !important;
 }
 
 mat-chip.confidence-low {
-  background-color: #f57c00 !important;
-  color: white !important;
+  background-color: var(--confidence-low-bg) !important;
+  color: var(--confidence-low-color) !important;
+  border: 2px dotted var(--confidence-low-border) !important;
 }
 
 mat-chip.urgency-chip {
