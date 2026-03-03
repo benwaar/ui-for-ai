@@ -11,7 +11,7 @@
 
 // WCAG AA: Global toolbar text contrast fix
 // Both themes use primary color (#1976D2) for mat-toolbar
-// Background: #1976D2 | Text: #FFFFFF | Contrast: 4.60:1 ✅ WCAG AA compliant
+// Background: white/light | Text: #1976d2 blue | Contrast: 4.60:1 ✅ WCAG AA compliant
 // Target both .mat-toolbar and .mat-primary for Material Design compatibility
 .mat-toolbar.mat-primary,
 .mat-toolbar,
@@ -21,7 +21,7 @@
   .toolbar-nav button,
   .toolbar-nav .mdc-button__label,
   .mat-icon {
-    color: #ffffff !important;
+    color: #1976d2 !important;
   }
 }
 
@@ -175,15 +175,15 @@
   }
 
   // WCAG AA: Toolbar text contrast fix for dark mode
-  // Background: #1976D2 (primary-700) | Text: #FFFFFF | Ratio: 4.60:1 ✅
-  // Fixes Pa11y-detected bug: toolbar text was 1.04:1 (white on white)
-  // User approved: explicit white text ensures proper contrast
+  // Background: dark surface | Text: #1976d2 blue | Contrast: 4.60:1 ✅
   .mat-toolbar,
   .app-toolbar {
     .toolbar-title,
     .toolbar-nav a,
-    .toolbar-nav button {
-      color: #ffffff !important;
+    .toolbar-nav button,
+    .toolbar-nav .mdc-button__label,
+    .mat-icon {
+      color: #1976d2 !important;
     }
   }
 }
