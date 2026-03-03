@@ -5,20 +5,20 @@
  *
  * Design Principles:
  * - Background: #121212 (Material's recommended dark surface)
- * - Primary: Light blue (#42A5F5) - high contrast on dark
- * - Accent: Light purple (#AB47BC) - distinct from primary
+ * - Primary: Medium blue (#1976D2) - WCAG AA compliant for white text
+ * - Accent: Dark purple (#7B1FA2) - WCAG AA compliant for white text
  * - Warn: Amber (#FFA726) - visible on dark without being harsh
  *
  * Confidence Level Colors (adjusted for dark mode):
- * - High: Light blue (#42A5F5)
- * - Medium: Light purple (#AB47BC)
+ * - High: Medium blue (#1976D2)
+ * - Medium: Dark purple (#7B1FA2)
  * - Low: Amber (#FFA726)
  *
  * All colors meet WCAG AA contrast requirements (4.5:1 for text, 3:1 for UI)
  */
 
 // Define custom palettes for dark theme
-$dark-primary: mat.define-palette(mat.$blue-palette, 300); // Lighter blue for dark backgrounds
+$dark-primary: mat.define-palette(mat.$blue-palette, 700); // Medium blue for WCAG AA contrast with white text (4.60:1)
 $dark-accent: mat.define-palette(mat.$purple-palette, 700); // Dark purple for WCAG AA contrast with white text (8.20:1)
 $dark-warn: mat.define-palette(mat.$amber-palette, 300); // Amber instead of orange for dark mode
 
