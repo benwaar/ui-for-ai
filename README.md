@@ -44,6 +44,18 @@ See [docs/mcp-and-agents.md](docs/mcp-and-agents.md). Comprehensive guide explai
 
 ---
 
+## Accessibility Testing & AI Tools
+
+See [docs/ai-tools-for-ui-a11y.md](docs/ai-tools-for-ui-a11y.md). Comprehensive review of AI development tools for accessible UI implementation - covering Pa11y-ci for automated WCAG testing, theme-specific accessibility testing strategies, pre-commit hooks for quality gates, and practical workflows for building WCAG 2.2 Level AA compliant interfaces with AI assistance.
+
+---
+
+## Project Review & Learning Progress
+
+See [docs/study-review.md](docs/study-review.md). Comprehensive technical review documenting static analysis success stories (accessibility bug detection with contrast calculations), Claude Code configuration milestones (MCPs, agents, hooks), and full architecture assessment covering Angular patterns, testing infrastructure, CI/CD pipeline, and production-quality code standards. Includes completed accessibility fixes and learning progression tracking.
+
+---
+
 ## Additional Docs & Scripts
 
 - Quickstart guide: [QUICKSTART.md](QUICKSTART.md)

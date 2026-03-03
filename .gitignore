@@ -47,5 +47,3 @@ frontend/pa11y-reports/*.png
 .env
 .env.local
 *.log
-REVIEW.md
-CLAUDE-NEXT.md
