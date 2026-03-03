@@ -47,3 +47,4 @@ frontend/pa11y-reports/*.html
 .env.local
 *.log
 REVIEW.md
+CLAUDE-NEXT.md

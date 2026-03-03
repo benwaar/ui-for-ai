@@ -19,7 +19,7 @@
 
 // Define custom palettes for dark theme
 $dark-primary: mat.define-palette(mat.$blue-palette, 300); // Lighter blue for dark backgrounds
-$dark-accent: mat.define-palette(mat.$purple-palette, 300); // Lighter purple for dark backgrounds
+$dark-accent: mat.define-palette(mat.$purple-palette, 700); // Dark purple for WCAG AA contrast with white text (8.20:1)
 $dark-warn: mat.define-palette(mat.$amber-palette, 300); // Amber instead of orange for dark mode
 
 // Create the dark theme
