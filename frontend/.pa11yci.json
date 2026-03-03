@@ -5,9 +5,6 @@
       "axe",
       "htmlcs"
     ],
-    "ignore": [
-      "color-contrast"
-    ],
     "chromeLaunchConfig": {
       "args": [
         "--no-sandbox",
@@ -20,6 +17,41 @@
     "includeWarnings": true
   },
   "urls": [
-    "http://localhost:4200"
+    {
+      "url": "http://localhost:4200/chatbot",
+      "screenCapture": "pa11y-reports/chatbot-light.png"
+    },
+    {
+      "url": "http://localhost:4200/chatbot",
+      "screenCapture": "pa11y-reports/chatbot-dark.png",
+      "actions": [
+        "click element button[aria-label='Toggle theme']",
+        "wait for element .dark-theme to be visible"
+      ]
+    },
+    {
+      "url": "http://localhost:4200/agent",
+      "screenCapture": "pa11y-reports/agent-light.png"
+    },
+    {
+      "url": "http://localhost:4200/agent",
+      "screenCapture": "pa11y-reports/agent-dark.png",
+      "actions": [
+        "click element button[aria-label='Toggle theme']",
+        "wait for element .dark-theme to be visible"
+      ]
+    },
+    {
+      "url": "http://localhost:4200/dmi",
+      "screenCapture": "pa11y-reports/dmi-light.png"
+    },
+    {
+      "url": "http://localhost:4200/dmi",
+      "screenCapture": "pa11y-reports/dmi-dark.png",
+      "actions": [
+        "click element button[aria-label='Toggle theme']",
+        "wait for element .dark-theme to be visible"
+      ]
+    }
   ]
 }
