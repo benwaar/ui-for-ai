@@ -7,13 +7,14 @@ import {
   DmiTrendResponse,
   DecisionLogResponse
 } from '../models/dmi.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DmiService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:5000/api/dmi';
+  private readonly API_URL = `${environment.apiUrl}/dmi`;
 
   /**
    * Get current software project health metrics

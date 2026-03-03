@@ -8,13 +8,14 @@ import {
   ChatbotCorrectionResponse,
   ConversationHistory
 } from '../models/chatbot.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatbotService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/chatbot';
+  private apiUrl = `${environment.apiUrl}/chatbot`;
 
   sendMessage(request: ChatbotRequest): Observable<ChatbotMessage> {
     return this.http.post<ChatbotMessage>(`${this.apiUrl}/message`, request);

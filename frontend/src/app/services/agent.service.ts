@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AgentState, AgentStartRequest, AgentModifyRequest, AgentActionLog } from '../models/agent.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AgentService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:5000/api/agent';
+  private readonly API_URL = `${environment.apiUrl}/agent`;
 
   /**
    * Get current agent status including subtasks and action log
