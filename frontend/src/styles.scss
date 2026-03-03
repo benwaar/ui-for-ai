@@ -9,6 +9,22 @@
 // Import Material prebuilt theme
 @import '@angular/material/prebuilt-themes/azure-blue.css';
 
+// WCAG AA: Global toolbar text contrast fix
+// Both themes use primary color (#1976D2) for mat-toolbar
+// Background: #1976D2 | Text: #FFFFFF | Contrast: 4.60:1 ✅ WCAG AA compliant
+// Target both .mat-toolbar and .mat-primary for Material Design compatibility
+.mat-toolbar.mat-primary,
+.mat-toolbar,
+.app-toolbar {
+  .toolbar-title,
+  .toolbar-nav a,
+  .toolbar-nav button,
+  .toolbar-nav .mdc-button__label,
+  .mat-icon {
+    color: #ffffff !important;
+  }
+}
+
 // Apply colorful theme
 .colorful-theme {
 
