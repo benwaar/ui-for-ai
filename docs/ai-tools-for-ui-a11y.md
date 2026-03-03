@@ -371,6 +371,121 @@ If you see this message, the agents are active and enforcing accessibility revie
 
 ---
 
+# Testing Theme-Specific Accessibility
+
+## The Problem
+
+Many accessibility bugs only appear in specific theme modes (light/dark). Traditional static analysis and even runtime Pa11y tests will miss these issues if they only test the default theme.
+
+**Real Example from This Project:**
+- Toolbar text "UI for AI Learning Lab" was **white on white** in dark mode
+- Contrast ratio: 1.04:1 (FAIL)
+- Static analysis calculated correct values but missed the actual rendered bug
+- Pa11y testing **without theme switching** also missed it
+
+## The Solution: Pa11y Actions
+
+Pa11y supports **actions** that simulate user interactions before running accessibility audits. We can use this to toggle themes and test each mode.
+
+### Configuration Example
+
+From this project's `.pa11yci.json`:
+
+```json
+{
+  "urls": [
+    {
+      "url": "http://localhost:4200/chatbot",
+      "screenCapture": "pa11y-reports/chatbot-light.png"
+    },
+    {
+      "url": "http://localhost:4200/chatbot",
+      "screenCapture": "pa11y-reports/chatbot-dark.png",
+      "actions": [
+        "click element button[aria-label='Toggle theme']",
+        "wait for element .dark-theme to be visible"
+      ]
+    }
+  ]
+}
+```
+
+### How It Works
+
+1. **Light Mode Test:** First URL tests default (light) theme
+2. **Dark Mode Test:** Second URL for same page:
+   - Clicks the theme toggle button
+   - Waits for `.dark-theme` class to be applied
+   - **Then** runs accessibility audit
+
+### Results
+
+✅ **Successfully caught the toolbar bug:**
+```
+• Error: Elements must meet minimum color contrast ratio thresholds
+  ├─ WCAG: color-contrast (Serious)
+  ├─ Selector: .toolbar-title
+  └─ Context: Expected ratio of at least 3:1, but text has 1.04:1
+```
+
+### Scaling to All Pages
+
+For comprehensive coverage, test every page in both themes:
+
+```json
+{
+  "urls": [
+    {"url": "http://localhost:4200/chatbot", "screenCapture": "pa11y-reports/chatbot-light.png"},
+    {"url": "http://localhost:4200/chatbot", "screenCapture": "pa11y-reports/chatbot-dark.png", "actions": ["click element button[aria-label='Toggle theme']", "wait for element .dark-theme to be visible"]},
+    {"url": "http://localhost:4200/agent", "screenCapture": "pa11y-reports/agent-light.png"},
+    {"url": "http://localhost:4200/agent", "screenCapture": "pa11y-reports/agent-dark.png", "actions": ["click element button[aria-label='Toggle theme']", "wait for element .dark-theme to be visible"]},
+    {"url": "http://localhost:4200/dmi", "screenCapture": "pa11y-reports/dmi-light.png"},
+    {"url": "http://localhost:4200/dmi", "screenCapture": "pa11y-reports/dmi-dark.png", "actions": ["click element button[aria-label='Toggle theme']", "wait for element .dark-theme to be visible"]}
+  ]
+}
+```
+
+**Result:** 6 tests total (3 pages × 2 themes)
+
+### Key Learnings
+
+1. **Static analysis alone is insufficient** - It can't detect runtime rendering issues
+2. **Default Pa11y tests only one state** - Themes, responsive modes, and interactive states need explicit testing
+3. **Pa11y actions are powerful** - Can simulate any user interaction before auditing
+4. **Screenshots are valuable** - Visual confirmation of what Pa11y tested
+
+### Other Use Cases for Pa11y Actions
+
+Beyond theme testing, actions can test:
+- **Responsive modes:** `set viewport to 375x667` (mobile)
+- **Modal dialogs:** Open modal, then audit focus trap and ARIA
+- **Form states:** Fill form, submit, audit error messages
+- **Authentication:** Login flow, audit authenticated UI
+
+### Recommended Pattern
+
+```json
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "runners": ["axe", "htmlcs"],
+    "timeout": 30000,
+    "wait": 2000
+  },
+  "urls": [
+    // For each page:
+    // 1. Test default state
+    {"url": "http://localhost:4200/page"},
+    // 2. Test with interactions (theme, modals, etc.)
+    {"url": "http://localhost:4200/page", "actions": ["..."]},
+    // 3. Test responsive if needed
+    {"url": "http://localhost:4200/page", "viewport": {"width": 375, "height": 667}}
+  ]
+}
+```
+
+---
+
 # ✅ Implementation Status (This Project)
 
 ## Completed
