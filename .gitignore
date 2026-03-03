@@ -32,6 +32,7 @@ frontend/typings/
 # Accessibility reports
 frontend/pa11y-reports/*.json
 frontend/pa11y-reports/*.html
+frontend/pa11y-reports/*.png
 !frontend/pa11y-reports/.gitkeep
 
 # IDE
