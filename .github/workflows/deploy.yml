@@ -41,6 +41,10 @@ jobs:
         working-directory: ./frontend
         run: npm run build -- --base-href=/ui-for-ai/
 
+      - name: Verify production API URL in build output
+        working-directory: ./frontend
+        run: rg -n "ui-for-ai-backend\\.onrender\\.com/api" dist/frontend/browser
+
       - name: Add SPA fallback for GitHub Pages
         run: cp ./frontend/dist/frontend/browser/index.html ./frontend/dist/frontend/browser/404.html
 
