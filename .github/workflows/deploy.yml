@@ -33,9 +33,16 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
+      - name: Run Angular component tests
+        working-directory: ./frontend
+        run: npx ng test --watch=false
+
       - name: Build Angular app
         working-directory: ./frontend
         run: npm run build -- --base-href=/ui-for-ai/
+
+      - name: Add SPA fallback for GitHub Pages
+        run: cp ./frontend/dist/frontend/browser/index.html ./frontend/dist/frontend/browser/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

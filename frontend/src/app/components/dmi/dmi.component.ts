@@ -10,7 +10,8 @@ import {
   DmiTrendResponse,
   DecisionLogResponse
 } from '../../models/dmi.model';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 // Register Chart.js components
@@ -63,45 +64,43 @@ export class DmiComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    // Load metrics
-    this.dmiService.getMetrics().subscribe({
-      next: (response) => {
-        this.metrics = response.metrics;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to load metrics:', err);
-        this.error = 'Failed to load metrics';
-      }
-    });
-
-    // Load decision
-    this.dmiService.getDecision().subscribe({
-      next: (decision) => {
+    forkJoin({
+      metrics: this.dmiService.getMetrics().pipe(
+        catchError((err) => {
+          console.error('Failed to load metrics:', err);
+          return of(null);
+        })
+      ),
+      decision: this.dmiService.getDecision().pipe(
+        catchError((err) => {
+          console.error('Failed to load decision:', err);
+          return of(null);
+        })
+      ),
+      decisionLog: this.dmiService.getDecisionLog().pipe(
+        catchError((err) => {
+          console.error('Failed to load decision log:', err);
+          return of(null);
+        })
+      )
+    }).subscribe({
+      next: ({ metrics, decision, decisionLog }) => {
+        this.metrics = metrics?.metrics ?? [];
         this.decision = decision;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to load decision:', err);
-        this.error = 'Failed to load decision';
-      }
-    });
+        this.decisionLog = decisionLog?.decisions ?? [];
+        this.decisionLogSummary = decisionLog?.summary ?? null;
 
-    // Load decision log
-    this.dmiService.getDecisionLog().subscribe({
-      next: (response) => {
-        this.decisionLog = response.decisions;
-        this.decisionLogSummary = response.summary;
+        if (!metrics && !decision && !decisionLog) {
+          this.error = 'Unable to load dashboard data. Please try again.';
+        }
+
         this.loading = false;
         this.cdr.detectChanges();
 
-        // Create charts after data is loaded
-        this.createCharts();
-      },
-      error: (err) => {
-        console.error('Failed to load decision log:', err);
-        this.loading = false;
-        this.error = 'Failed to load decision log';
+        // Wait for Angular to render the canvases before creating charts.
+        if (this.metrics.length > 0) {
+          window.setTimeout(() => this.createCharts());
+        }
       }
     });
   }

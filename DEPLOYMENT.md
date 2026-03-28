@@ -92,7 +92,7 @@ python app.py
 ## Troubleshooting
 
 ### Frontend Issues
-- **404 on routes:** Ensure GitHub Pages is set to "GitHub Actions" source
+- **404 on route reloads:** GitHub Pages needs an SPA fallback so deep links like `/chatbot` and `/dmi` resolve to the Angular app shell. The deploy workflow copies `index.html` to `404.html` for this.
 - **Assets not loading:** Check base href in angular.json and deploy.yml
 - **API errors:** Verify backend URL in environment.prod.ts
 

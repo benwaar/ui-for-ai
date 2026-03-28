@@ -1,6 +1,9 @@
 # UI for AI Quickstart: Agents, Chatbots & DMI Reporting
 
-[![CI](https://github.com/benwaar/ui-for-ai/workflows/CI/badge.svg)](https://github.com/benwaar/ui-for-ai/actions)
+[![CI](https://github.com/benwaar/ui-for-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/benwaar/ui-for-ai/actions/workflows/ci.yml)
+[![Deploy](https://github.com/benwaar/ui-for-ai/actions/workflows/deploy.yml/badge.svg)](https://github.com/benwaar/ui-for-ai/actions/workflows/deploy.yml)
+
+[Wake Backend API](https://ui-for-ai-backend.onrender.com/api/health)
 
 This is a learning lab. The aim is to give a skilled UI developer the [principles](docs/ui-for-ai-principles-and-patterns.md) to read and the [study plan](docs/study-plan.md) to work through, before starting work on a UI for AI project. 
 
@@ -63,4 +66,3 @@ See [docs/study-review.md](docs/study-review.md). Comprehensive technical review
 - License: [LICENSE](LICENSE)
 
 ---
-

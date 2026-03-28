@@ -28,6 +28,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run Angular component tests
+        run: npx ng test --watch=false
+        continue-on-error: false
+
       - name: Run linter
         run: npm run lint
         continue-on-error: false

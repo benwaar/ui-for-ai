@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { AgentService } from './agent.service';
-import { AgentState, AgentStartRequest, AgentModifyRequest, AgentActionLog } from '../models/agent.model';
 import { firstValueFrom } from 'rxjs';
+import { AgentService } from './agent.service';
+import { AgentActionLog, AgentModifyRequest, AgentStartRequest, AgentState } from '../models/agent.model';
 
 describe('AgentService', () => {
   let service: AgentService;
@@ -23,6 +23,28 @@ describe('AgentService', () => {
     httpMock.verify();
   });
 
+  const mockState: AgentState = {
+    status: 'running',
+    current_goal: 'Test goal',
+    autonomy_level: 'semi-auto',
+    subtasks: [
+      {
+        id: 1,
+        task: 'Analyze repository',
+        status: 'in_progress',
+        progress: 50,
+      },
+    ],
+    started_at: '2026-03-28T12:00:00Z',
+    action_log: [
+      {
+        timestamp: '2026-03-28T12:00:00Z',
+        action: 'start',
+        details: 'Agent started with test goal',
+      },
+    ],
+  };
+
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
@@ -34,24 +56,18 @@ describe('AgentService', () => {
       const req = httpMock.expectOne(`${baseUrl}/status`);
       expect(req.request.method).toBe('GET');
 
-      req.flush({} as AgentState);
+      req.flush(mockState);
     });
 
     it('should return AgentState observable', async () => {
-      const mockState: AgentState = {
-        status: 'idle',
-        current_goal: null,
-        progress: 0,
-        timestamp: '2024-01-01T12:00:00Z',
-      };
-
       const promise = firstValueFrom(service.getStatus());
       const req = httpMock.expectOne(`${baseUrl}/status`);
       req.flush(mockState);
 
       const state = await promise;
       expect(state).toEqual(mockState);
-      expect(state.status).toBe('idle');
+      expect(state.status).toBe('running');
+      expect(state.subtasks[0].progress).toBe(50);
     });
 
     it('should handle error when getting status', async () => {
@@ -63,35 +79,24 @@ describe('AgentService', () => {
     });
   });
 
-  describe('start', () => {
+  describe('startAgent', () => {
     it('should make POST request to /api/agent/start with request body', () => {
-      const startRequest: AgentStartRequest = {
+      const request: AgentStartRequest = {
         goal: 'Complete task A',
-        constraints: ['Use only verified data'],
+        autonomy_level: 'supervised',
       };
 
-      service.start(startRequest).subscribe();
+      service.startAgent(request.goal, request.autonomy_level).subscribe();
 
       const req = httpMock.expectOne(`${baseUrl}/start`);
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(startRequest);
+      expect(req.request.body).toEqual(request);
 
-      req.flush({} as AgentState);
+      req.flush(mockState);
     });
 
     it('should return AgentState after starting', async () => {
-      const startRequest: AgentStartRequest = {
-        goal: 'Test goal',
-      };
-
-      const mockState: AgentState = {
-        status: 'running',
-        current_goal: 'Test goal',
-        progress: 0,
-        timestamp: '2024-01-01T12:00:00Z',
-      };
-
-      const promise = firstValueFrom(service.start(startRequest));
+      const promise = firstValueFrom(service.startAgent('Test goal', 'semi-auto'));
       const req = httpMock.expectOne(`${baseUrl}/start`);
       req.flush(mockState);
 
@@ -101,54 +106,40 @@ describe('AgentService', () => {
     });
   });
 
-  describe('pause', () => {
+  describe('pauseAgent', () => {
     it('should make POST request to /api/agent/pause', () => {
-      service.pause().subscribe();
+      service.pauseAgent().subscribe();
 
       const req = httpMock.expectOne(`${baseUrl}/pause`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
 
-      req.flush({} as AgentState);
+      req.flush({ ...mockState, status: 'paused' });
     });
 
     it('should return AgentState with paused status', async () => {
-      const mockState: AgentState = {
-        status: 'paused',
-        current_goal: 'Test goal',
-        progress: 50,
-        timestamp: '2024-01-01T12:00:00Z',
-      };
-
-      const promise = firstValueFrom(service.pause());
+      const promise = firstValueFrom(service.pauseAgent());
       const req = httpMock.expectOne(`${baseUrl}/pause`);
-      req.flush(mockState);
+      req.flush({ ...mockState, status: 'paused' });
 
       const state = await promise;
       expect(state.status).toBe('paused');
     });
   });
 
-  describe('resume', () => {
+  describe('resumeAgent', () => {
     it('should make POST request to /api/agent/resume', () => {
-      service.resume().subscribe();
+      service.resumeAgent().subscribe();
 
       const req = httpMock.expectOne(`${baseUrl}/resume`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
 
-      req.flush({} as AgentState);
+      req.flush(mockState);
     });
 
     it('should return AgentState with running status', async () => {
-      const mockState: AgentState = {
-        status: 'running',
-        current_goal: 'Test goal',
-        progress: 50,
-        timestamp: '2024-01-01T12:00:00Z',
-      };
-
-      const promise = firstValueFrom(service.resume());
+      const promise = firstValueFrom(service.resumeAgent());
       const req = httpMock.expectOne(`${baseUrl}/resume`);
       req.flush(mockState);
 
@@ -157,28 +148,21 @@ describe('AgentService', () => {
     });
   });
 
-  describe('stop', () => {
+  describe('stopAgent', () => {
     it('should make POST request to /api/agent/stop', () => {
-      service.stop().subscribe();
+      service.stopAgent().subscribe();
 
       const req = httpMock.expectOne(`${baseUrl}/stop`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
 
-      req.flush({} as AgentState);
+      req.flush({ ...mockState, status: 'stopped', current_goal: null });
     });
 
     it('should return AgentState with stopped status', async () => {
-      const mockState: AgentState = {
-        status: 'stopped',
-        current_goal: null,
-        progress: 0,
-        timestamp: '2024-01-01T12:00:00Z',
-      };
-
-      const promise = firstValueFrom(service.stop());
+      const promise = firstValueFrom(service.stopAgent());
       const req = httpMock.expectOne(`${baseUrl}/stop`);
-      req.flush(mockState);
+      req.flush({ ...mockState, status: 'stopped', current_goal: null });
 
       const state = await promise;
       expect(state.status).toBe('stopped');
@@ -186,37 +170,25 @@ describe('AgentService', () => {
     });
   });
 
-  describe('modify', () => {
+  describe('modifyGoal', () => {
     it('should make POST request to /api/agent/modify with request body', () => {
-      const modifyRequest: AgentModifyRequest = {
-        new_goal: 'Updated goal',
-        additional_constraints: ['New constraint'],
+      const request: AgentModifyRequest = {
+        goal: 'Updated goal',
       };
 
-      service.modify(modifyRequest).subscribe();
+      service.modifyGoal(request.goal).subscribe();
 
       const req = httpMock.expectOne(`${baseUrl}/modify`);
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(modifyRequest);
+      expect(req.request.body).toEqual(request);
 
-      req.flush({} as AgentState);
+      req.flush({ ...mockState, current_goal: 'Updated goal' });
     });
 
     it('should return updated AgentState', async () => {
-      const modifyRequest: AgentModifyRequest = {
-        new_goal: 'Modified goal',
-      };
-
-      const mockState: AgentState = {
-        status: 'running',
-        current_goal: 'Modified goal',
-        progress: 25,
-        timestamp: '2024-01-01T12:00:00Z',
-      };
-
-      const promise = firstValueFrom(service.modify(modifyRequest));
+      const promise = firstValueFrom(service.modifyGoal('Modified goal'));
       const req = httpMock.expectOne(`${baseUrl}/modify`);
-      req.flush(mockState);
+      req.flush({ ...mockState, current_goal: 'Modified goal' });
 
       const state = await promise;
       expect(state.current_goal).toBe('Modified goal');
@@ -230,7 +202,7 @@ describe('AgentService', () => {
       const req = httpMock.expectOne(`${baseUrl}/action-log`);
       expect(req.request.method).toBe('GET');
 
-      req.flush({} as AgentActionLog);
+      req.flush({ actions: [], total_actions: 0 } as AgentActionLog);
     });
 
     it('should return AgentActionLog observable', async () => {
@@ -238,13 +210,13 @@ describe('AgentService', () => {
         actions: [
           {
             action: 'start',
-            timestamp: '2024-01-01T12:00:00Z',
-            description: 'Agent started',
+            timestamp: '2026-03-28T12:00:00Z',
+            details: 'Agent started',
           },
           {
             action: 'step',
-            timestamp: '2024-01-01T12:01:00Z',
-            description: 'Processing step 1',
+            timestamp: '2026-03-28T12:01:00Z',
+            details: 'Processing step 1',
           },
         ],
         total_actions: 2,

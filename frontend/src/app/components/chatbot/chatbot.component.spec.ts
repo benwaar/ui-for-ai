@@ -3,36 +3,55 @@ import { ChatbotComponent } from './chatbot.component';
 import { ChatbotService } from '../../services/chatbot.service';
 import { ThemeService } from '../../services/theme.service';
 import { of, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ChatbotMessage } from '../../models/chatbot.model';
+import { vi } from 'vitest';
 
 describe('ChatbotComponent', () => {
   let component: ChatbotComponent;
   let fixture: ComponentFixture<ChatbotComponent>;
-  let chatbotServiceSpy: jasmine.SpyObj<ChatbotService>;
-  let themeServiceSpy: jasmine.SpyObj<ThemeService>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  let chatbotServiceSpy: {
+    sendMessage: ReturnType<typeof vi.fn>;
+    correctMessage: ReturnType<typeof vi.fn>;
+    getHistory: ReturnType<typeof vi.fn>;
+  };
+  let themeServiceSpy: {
+    toggleTheme: ReturnType<typeof vi.fn>;
+    getCurrentTheme: ReturnType<typeof vi.fn>;
+    theme$: Observable<'colorful' | 'dark'>;
+  };
 
   beforeEach(async () => {
-    const chatbotSpy = jasmine.createSpyObj('ChatbotService', [
-      'sendMessage',
-      'correctMessage',
-      'getHistory',
-    ]);
-    const themeSpy = jasmine.createSpyObj('ThemeService', ['toggleTheme', 'getCurrentTheme']);
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    chatbotServiceSpy = {
+      sendMessage: vi.fn(),
+      correctMessage: vi.fn(),
+      getHistory: vi.fn(),
+    };
+    themeServiceSpy = {
+      toggleTheme: vi.fn(),
+      getCurrentTheme: vi.fn().mockReturnValue('colorful'),
+      theme$: of<'colorful' | 'dark'>('colorful'),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ChatbotComponent],
       providers: [
-        { provide: ChatbotService, useValue: chatbotSpy },
-        { provide: ThemeService, useValue: themeSpy },
+        { provide: ChatbotService, useValue: chatbotServiceSpy },
+        { provide: ThemeService, useValue: themeServiceSpy },
       ],
     }).compileComponents();
-
-    chatbotServiceSpy = TestBed.inject(ChatbotService) as jasmine.SpyObj<ChatbotService>;
-    themeServiceSpy = TestBed.inject(ThemeService) as jasmine.SpyObj<ThemeService>;
 
     fixture = TestBed.createComponent(ChatbotComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
+    vi.restoreAllMocks();
   });
 
   it('should create', () => {
@@ -99,7 +118,7 @@ describe('ChatbotComponent', () => {
         alternative_interpretations: [],
       };
 
-      chatbotServiceSpy.sendMessage.and.returnValue(of(mockResponse));
+      chatbotServiceSpy.sendMessage.mockReturnValue(of(mockResponse));
 
       component.sendMessage();
 
@@ -123,7 +142,7 @@ describe('ChatbotComponent', () => {
         alternative_interpretations: [],
       };
 
-      chatbotServiceSpy.sendMessage.and.returnValue(of(mockResponse));
+      chatbotServiceSpy.sendMessage.mockReturnValue(of(mockResponse));
 
       const initialLoading = component.isLoading;
       component.sendMessage();
@@ -147,7 +166,7 @@ describe('ChatbotComponent', () => {
         alternative_interpretations: [],
       };
 
-      chatbotServiceSpy.sendMessage.and.returnValue(of(mockResponse));
+      chatbotServiceSpy.sendMessage.mockReturnValue(of(mockResponse));
 
       component.sendMessage();
 
@@ -169,7 +188,7 @@ describe('ChatbotComponent', () => {
         alternative_interpretations: [],
       };
 
-      chatbotServiceSpy.sendMessage.and.returnValue(of(mockResponse));
+      chatbotServiceSpy.sendMessage.mockReturnValue(of(mockResponse));
 
       component.sendMessage();
 
@@ -179,7 +198,7 @@ describe('ChatbotComponent', () => {
       });
     });
 
-    it('should add assistant message to messages array on success', (done) => {
+    it('should add assistant message to messages array on success', () => {
       component.userInput = 'Question';
 
       const mockResponse: ChatbotMessage = {
@@ -193,22 +212,18 @@ describe('ChatbotComponent', () => {
         alternative_interpretations: [],
       };
 
-      chatbotServiceSpy.sendMessage.and.returnValue(of(mockResponse));
+      chatbotServiceSpy.sendMessage.mockReturnValue(of(mockResponse));
 
       component.sendMessage();
 
-      // Allow async operations to complete
-      setTimeout(() => {
-        const assistantMsg = component.messages.find((m) => m.type === 'assistant');
-        expect(assistantMsg).toBeDefined();
-        expect(assistantMsg?.content).toBe('AI Answer');
-        expect(assistantMsg?.data?.confidence).toBe(0.92);
-        expect(component.isLoading).toBe(false);
-        done();
-      }, 50);
+      const assistantMsg = component.messages.find((m) => m.type === 'assistant');
+      expect(assistantMsg).toBeDefined();
+      expect(assistantMsg?.content).toBe('AI Answer');
+      expect(assistantMsg?.data?.confidence).toBe(0.92);
+      expect(component.isLoading).toBe(false);
     });
 
-    it('should update context ID from response', (done) => {
+    it('should update context ID from response', () => {
       component.userInput = 'Test';
       component.currentContextId = undefined;
 
@@ -223,33 +238,27 @@ describe('ChatbotComponent', () => {
         alternative_interpretations: [],
       };
 
-      chatbotServiceSpy.sendMessage.and.returnValue(of(mockResponse));
+      chatbotServiceSpy.sendMessage.mockReturnValue(of(mockResponse));
 
       component.sendMessage();
 
-      setTimeout(() => {
-        expect(component.currentContextId).toBe('new-context-id');
-        done();
-      }, 50);
+      expect(component.currentContextId).toBe('new-context-id');
     });
 
-    it('should handle network error gracefully', (done) => {
+    it('should handle network error gracefully', () => {
       component.userInput = 'Test';
 
-      chatbotServiceSpy.sendMessage.and.returnValue(
+      chatbotServiceSpy.sendMessage.mockReturnValue(
         throwError(() => new Error('Network error'))
       );
 
       component.sendMessage();
 
-      setTimeout(() => {
-        const errorMsg = component.messages.find(
-          (m) => m.type === 'system' && m.content.includes('Network error')
-        );
-        expect(errorMsg).toBeDefined();
-        expect(component.isLoading).toBe(false);
-        done();
-      }, 50);
+      const errorMsg = component.messages.find(
+        (m) => m.type === 'system' && m.content.includes('Network error')
+      );
+      expect(errorMsg).toBeDefined();
+      expect(component.isLoading).toBe(false);
     });
   });
 
@@ -406,8 +415,8 @@ describe('ChatbotComponent', () => {
       };
 
       component.correctionText = 'This is the correction';
-      chatbotServiceSpy.correctMessage.and.returnValue(
-        of({ message: 'Correction accepted' })
+      chatbotServiceSpy.correctMessage.mockReturnValue(
+        of({ success: true, message: 'Correction accepted' })
       );
 
       component.submitCorrection(mockMessage, 0);
