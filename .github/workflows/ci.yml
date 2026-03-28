@@ -49,7 +49,7 @@ jobs:
         continue-on-error: false
 
       - name: Verify production API URL in build output
-        run: rg -n "ui-for-ai-backend\\.onrender\\.com/api" dist/frontend/browser
+        run: grep -R -n "ui-for-ai-backend\\.onrender\\.com/api" dist/frontend/browser
         continue-on-error: false
 
       - name: Upload coverage reports
