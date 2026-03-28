@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/benwaar/ui-for-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/benwaar/ui-for-ai/actions/workflows/ci.yml)
 [![Deploy](https://github.com/benwaar/ui-for-ai/actions/workflows/deploy.yml/badge.svg)](https://github.com/benwaar/ui-for-ai/actions/workflows/deploy.yml)
-[![Backend](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fui-for-ai-backend.onrender.com%2Fapi%2Fhealth&query=%24.status&label=Backend&color=brightgreen)](https://ui-for-ai-backend.onrender.com/api/health)
+[![Backend](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fui-for-ai-backend.onrender.com%2Fapi%2Fhealth&query=%24.status&label=Backend&color=brightgreen&cacheSeconds=300)](https://ui-for-ai-backend.onrender.com/api/health)
 
 This is a learning lab. The aim is to give a skilled UI developer the [principles](docs/ui-for-ai-principles-and-patterns.md) to read and the [study plan](docs/study-plan.md) to work through, before starting work on a UI for AI project. 
 
